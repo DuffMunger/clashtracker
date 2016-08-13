@@ -10,6 +10,7 @@ if(isset($_SESSION['user_id'])){
 		$loggedInUserPlayer = null;
 		$loggedInUserClan = null;
 		$_SESSION['curError'] = 'No user with id ' . $userId . ' found.';
+		$_SESSION['user_id'] = null;
 		header('Location: /login.php');
 		exit;
 	}

@@ -865,31 +865,43 @@ class War{
 			$players = $war->getPlayers($clan);
 			foreach ($players as $player) {
 				$attacks = $war->getPlayerAttacks($player);
+				$numOfWars = $player->get('numberOfWars');
+				# These changes are a temporary fix for #62, until I have the time to do #54
+				if(!isset($numOfWars) || $numOfWars == 0){
+					$rankAttacked = $origRankAttacked = 0;
+					$rankDefended = $origRankDefended = 0;
+				}else{
+					$rankAttacked = $origRankAttacked = $player->get('rankAttacked');
+					$rankDefended = $origRankDefended = $player->get('rankDefended');
+				}
+				$player->set('numberOfWars', $numOfWars + 1);
 				$player->set('attacksUsed', $player->get('attacksUsed') + count($attacks));
 				$firstAttack = $attacks[0];
 				if(isset($firstAttack)){
 					$player->set('firstAttackTotalStars', $player->get('firstAttackTotalStars') + $firstAttack['totalStars']);
 					$player->set('firstAttackNewStars', $player->get('firstAttackNewStars') + $firstAttack['newStars']);
-					$diff = $firstAttack['attackerRank'] - $firstAttack['defenderRank'];
-					$player->set('rankAttacked', $player->get('rankAttacked') + $diff);
+					$rankAttacked += $firstAttack['attackerRank'] - $firstAttack['defenderRank'];
 				}
 				$secondAttack = $attacks[1];
 				if(isset($secondAttack)){
 					$player->set('secondAttackTotalStars', $player->get('secondAttackTotalStars') + $secondAttack['totalStars']);
 					$player->set('secondAttackNewStars', $player->get('secondAttackNewStars') + $secondAttack['newStars']);
-					$diff = $secondAttack['attackerRank'] - $secondAttack['defenderRank'];
-					$player->set('rankAttacked', $player->get('rankAttacked') + $diff);
+					$rankAttacked += $secondAttack['attackerRank'] - $secondAttack['defenderRank'];
+				}
+				if($rankAttacked != $origRankAttacked){
+					$player->set('rankAttacked', $rankAttacked);
 				}
 				$defences = $war->getPlayerDefences($player->get('id'));
 				$stars = 0;
 				foreach ($defences as $defence) {
 					$stars += $defence['newStars'];
-					$diff = $defence['defenderRank'] - $defence['attackerRank'];
-					$player->set('rankDefended', $player->get('rankDefended') + $diff);
+					$rankDefended += $defence['defenderRank'] - $defence['attackerRank'];
+				}
+				if($rankDefended != $origRankDefended){
+					$player->set('rankDefended', $rankDefended);
 				}
 				$player->set('numberOfDefences', $player->get('numberOfDefences') + count($defences));
 				$player->set('starsOnDefence', $player->get('starsOnDefence') + $stars);
-				$player->set('numberOfWars', $player->get('numberOfWars') + 1);
 			}
 		}
 	}

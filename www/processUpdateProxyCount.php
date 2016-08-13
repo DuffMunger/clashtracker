@@ -2,7 +2,7 @@
 require('init.php');
 require('session.php');
 
-if(!isset($loggedInUser) || $loggedInUser->isAdmin()){
+if(!isset($loggedInUser) || !$loggedInUser->isAdmin()){
 	$_SESSION['curError'] = NO_ACCESS;
 	header('Location: /home.php');
 	exit;

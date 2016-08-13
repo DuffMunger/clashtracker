@@ -9,7 +9,9 @@ foreach ($blogPosts as $blogPost) {
 	$months[] = date('F Y', strtotime($blogPost->get('dateCreated')));
 }
 $months = array_unique($months);
-$blogPost = $blogPosts[0];
+if(isset($blogPosts[0])){
+	$blogPost = $blogPosts[0];
+}
 $months = array_slice($months, 0, 12);
 
 require('showMessages.php');

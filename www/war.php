@@ -13,6 +13,7 @@ try{
 }
 
 $clanId = $_GET['clanId'];
+$clanIdText = (isset($clanId)) ? "&clanId=$clanId" : '';
 
 $clan1 = $war->get('clan1');
 $clan2 = $war->get('clan2');
@@ -250,13 +251,9 @@ require('header.php');
 		<div class="col-md-6">
 			<h2 class="hidden-lg"><?=displayName($clan1->get('name'));?></h2>
 			<div class="col-md-12">
-				<?if($clan1CanAddMore && $userCanEdit){
-					if(isset($clanId)){?>
-						<a type="button" class="btn btn-success" href="/addWarPlayer.php?warId=<?=$war->get('id');?>&addClanId=<?=$clan1->get('id');?>&clanId=<?=$clanId;?>">Add Players</a><br><br>
-					<?}else{?>
-						<a type="button" class="btn btn-success" href="/addWarPlayer.php?warId=<?=$war->get('id');?>&addClanId=<?=$clan1->get('id');?>">Add Players</a><br><br>
-					<?}
-					if(count($clan1Players) > 0){?>
+				<?if($clan1CanAddMore && $userCanEdit){?>
+					<a type="button" class="btn btn-success" href="/addWarPlayer.php?warId=<?=$war->get('id');?>&addClanId=<?=$clan1->get('id');?><?=$clanIdText;?>">Add Players</a><br><br>
+					<?if(count($clan1Players) > 0){?>
 						<div class="alert alert-warning" role="alert">
 							There's not enough players in the war for this clan yet. <?if($userCanEdit){ print "You can add more by clicking the button above.";}?>
 						</div>
@@ -325,13 +322,9 @@ require('header.php');
 													<i class="fa fa-star-o" style="color: silver;"></i>
 												<?}
 											}else{
-												if(count($clan2Players) > 0 && $userCanEdit){
-													if(isset($clanId)){?>
-														<a type="button" class="btn btn-xs btn-success" href="/addWarAttack.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?>&clanId=<?=$clanId;?>">Add Attack</a>
-													<?}else{?>
-														<a type="button" class="btn btn-xs btn-success" href="/addWarAttack.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?>">Add Attack</a>
-													<?}
-												}
+												if(count($clan2Players) > 0 && $userCanEdit){?>
+													<a type="button" class="btn btn-xs btn-success" href="/addWarAttack.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?><?=$clanIdText;?>">Add Attack</a>
+												<?}
 											}?>
 										</td>
 										<td>
@@ -346,13 +339,9 @@ require('header.php');
 													<i class="fa fa-star-o" style="color: silver;"></i>
 												<?}
 											}elseif(isset($firstAttack)){
-												if(count($clan2Players) > 0 && $userCanEdit){
-													if(isset($clanId)){?>
-														<a type="button" class="btn btn-xs btn-success" href="/addWarAttack.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?>&clanId=<?=$clanId;?>">Add Attack</a>
-													<?}else{?>
-														<a type="button" class="btn btn-xs btn-success" href="/addWarAttack.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?>">Add Attack</a>
-													<?}
-												}
+												if(count($clan2Players) > 0 && $userCanEdit){?>
+													<a type="button" class="btn btn-xs btn-success" href="/addWarAttack.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?><?=$clanIdText;?>">Add Attack</a>
+												<?}
 											}?>
 										</td>
 										<td>
@@ -368,11 +357,7 @@ require('header.php');
 										</td>
 										<?if($userCanEdit){?>
 											<td>
-												<?if(isset($clanId)){?>
-													<a type="button" class="btn btn-xs btn-danger" href="/processRemoveWarPlayer.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?>&clanId=<?=$clanId;?>" data-toggle="popover" data-trigger="hover" data-placement="left" data-content="Click to remove this player from the war.">&times;</a>
-												<?}else{?>
-													<a type="button" class="btn btn-xs btn-danger" href="/processRemoveWarPlayer.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?>" data-toggle="popover" data-trigger="hover" data-placement="left" data-content="Click to remove this player from the war.">&times;</a>
-												<?}?>
+												<a type="button" class="btn btn-xs btn-danger" href="/processRemoveWarPlayer.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?><?=$clanIdText;?>" data-toggle="popover" data-trigger="hover" data-placement="left" data-content="Click to remove this player from the war.">&times;</a>
 											</td>
 										<?}?>
 									</tr>
@@ -390,13 +375,9 @@ require('header.php');
 		<div class="col-md-6">
 			<h2 class="hidden-lg"><?=displayName($clan2->get('name'));?></h2>
 			<div class="col-md-12">
-				<?if($clan2CanAddMore && $userCanEdit){
-					if(isset($clanId)){?>
-						<a type="button" class="btn btn-success" href="/addWarPlayer.php?warId=<?=$war->get('id');?>&addClanId=<?=$clan2->get('id');?>&clanId=<?=$clanId;?>">Add Players</a><br><br>
-					<?}else{?>
-						<a type="button" class="btn btn-success" href="/addWarPlayer.php?warId=<?=$war->get('id');?>&addClanId=<?=$clan2->get('id');?>">Add Players</a><br><br>
-					<?}
-					if(count($clan2Players) > 0){?>
+				<?if($clan2CanAddMore && $userCanEdit){?>
+					<a type="button" class="btn btn-success" href="/addWarPlayer.php?warId=<?=$war->get('id');?>&addClanId=<?=$clan2->get('id');?><?=$clanIdText;?>">Add Players</a><br><br>
+					<?if(count($clan2Players) > 0){?>
 						<div class="alert alert-warning" role="alert">
 							There's not enough players in the war for this clan yet. <?if($userCanEdit){ print "You can add more by clicking the button above.";}?>
 						</div>
@@ -465,13 +446,9 @@ require('header.php');
 													<i class="fa fa-star-o" style="color: silver;"></i>
 												<?}
 											}else{
-												if(count($clan1Players) > 0 && $userCanEdit){
-													if(isset($clanId)){?>
-														<a type="button" class="btn btn-xs btn-success" href="/addWarAttack.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?>&clanId=<?=$clanId;?>">Add Attack</a>
-													<?}else{?>
-														<a type="button" class="btn btn-xs btn-success" href="/addWarAttack.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?>">Add Attack</a>
-													<?}
-												}
+												if(count($clan1Players) > 0 && $userCanEdit){?>
+													<a type="button" class="btn btn-xs btn-success" href="/addWarAttack.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?><?=$clanIdText;?>">Add Attack</a>
+												<?}
 											}?>
 										</td>
 										<td>
@@ -486,13 +463,9 @@ require('header.php');
 													<i class="fa fa-star-o" style="color: silver;"></i>
 												<?}
 											}elseif(isset($firstAttack)){
-												if(count($clan1Players) > 0 && $userCanEdit){
-													if(isset($clanId)){?>
-														<a type="button" class="btn btn-xs btn-success" href="/addWarAttack.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?>&clanId=<?=$clanId;?>">Add Attack</a>
-													<?}else{?>
-														<a type="button" class="btn btn-xs btn-success" href="/addWarAttack.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?>">Add Attack</a>
-													<?}
-												}
+												if(count($clan1Players) > 0 && $userCanEdit){?>
+													<a type="button" class="btn btn-xs btn-success" href="/addWarAttack.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?><?=$clanIdText;?>">Add Attack</a>
+												<?}
 											}?>
 										</td>
 										<td>
@@ -508,11 +481,7 @@ require('header.php');
 										</td>
 										<?if($userCanEdit){?>
 											<td>
-												<?if(isset($clanId)){?>
-													<a type="button" class="btn btn-xs btn-danger" href="/processRemoveWarPlayer.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?>&clanId=<?=$clanId;?>" data-toggle="popover" data-trigger="hover" data-placement="left" data-content="Click to remove this player from the war.">&times;</a>
-												<?}else{?>
-													<a type="button" class="btn btn-xs btn-danger" href="/processRemoveWarPlayer.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?>" data-toggle="popover" data-trigger="hover" data-placement="left" data-content="Click to remove this player from the war.">&times;</a>
-												<?}?>
+												<a type="button" class="btn btn-xs btn-danger" href="/processRemoveWarPlayer.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?><?=$clanIdText;?>" data-toggle="popover" data-trigger="hover" data-placement="left" data-content="Click to remove this player from the war.">&times;</a>
 											</td>
 										<?}?>
 									</tr>
@@ -564,13 +533,8 @@ require('header.php');
 								</td>
 								<?if($userCanEdit){?>
 									<td class="text-center">
-										<?if(isset($clanId)){?>
-											<a type="button" class="btn btn-sm btn-success" href="/editWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?>&clanId=<?=$clanId;?>">Edit</a>
-											<a type="button" class="btn btn-sm btn-danger" href="/processRemoveWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?>&clanId=<?=$clanId;?>" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Click to remove this attack from the war.">&times;</a>
-										<?}else{?>
-											<a type="button" class="btn btn-sm btn-success" href="/editWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?>">Edit</a>
-											<a type="button" class="btn btn-sm btn-danger" href="/processRemoveWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?>" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Click to remove this attack from the war.">&times;</a>
-										<?}?>
+										<a type="button" class="btn btn-sm btn-success" href="/editWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?><?=$clanIdText;?>">Edit</a>
+										<a type="button" class="btn btn-sm btn-danger" href="/processRemoveWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?><?=$clanIdText;?>" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Click to remove this attack from the war.">&times;</a>
 									</td>
 								<?}?>
 								<td class="text-right"><i class="fa fa-shield"></i>&nbsp;<strong class="rank-<?=$defender->get('id');?>"><?=$defenderRank . '. ' . displayName($defender->get('name'));?></strong><br>
@@ -590,13 +554,8 @@ require('header.php');
 								</td>
 								<?if($userCanEdit){?>
 									<td class="text-center">
-										<?if(isset($clanId)){?>
-											<a type="button" class="btn btn-sm btn-success" href="/editWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?>&clanId=<?=$clanId;?>">Edit</a>
-											<a type="button" class="btn btn-sm btn-danger" href="/processRemoveWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?>&clanId=<?=$clanId;?>" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Click to remove this attack from the war.">&times;</a>
-										<?}else{?>
-											<a type="button" class="btn btn-sm btn-success" href="/editWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?>">Edit</a>
-											<a type="button" class="btn btn-sm btn-danger" href="/processRemoveWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?>" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Click to remove this attack from the war.">&times;</a>
-										<?}?>
+										<a type="button" class="btn btn-sm btn-success" href="/editWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?><?=$clanIdText;?>">Edit</a>
+										<a type="button" class="btn btn-sm btn-danger" href="/processRemoveWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?><?=$clanIdText;?>" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Click to remove this attack from the war.">&times;</a>
 									</td>
 								<?}?>
 								<td class="text-right"><i class="fa fa-star"></i>&nbsp;<strong class="rank-<?=$attacker->get('id');?>"><?=$attackerRank . '.&nbsp;' . displayName($attacker->get('name'));?></strong><br>
@@ -650,7 +609,6 @@ require('header.php');
 								<td><?=$request->user->get('email');?></td>
 								<td><?=displayName($request->message);?></td>
 								<td class="text-right">
-									<?$clanIdText = (isset($clan)) ? '&clanId=' . $clan->get('id') : '';?>
 									<a type="button" class="btn btn-xs btn-danger" href="/processEditRequestResponse.php?warId=<?=$war->get('id');?>&userId=<?=$request->user->get('id');?>&response=decline<?=$clanIdText;?>">Decline</a>
 									<a type="button" class="btn btn-xs btn-success" href="/processEditRequestResponse.php?warId=<?=$war->get('id');?>&userId=<?=$request->user->get('id');?>&response=accept<?=$clanIdText;?>">Accept</a>
 								</td>

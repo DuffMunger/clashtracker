@@ -66,15 +66,17 @@ $war = new War();
 unsetAll();
 try{
 	$war->create($clan, $enemyClan, $size);
-	$_SESSION['curMessage'] = 'Clan War created successully.';
+	$_SESSION['curMessage'] = 'Clan War created successfully.';
 	header('Location: /war.php?warId=' . $war->get('id') . '&clanId=' . $clan->get('id'));
 }catch(Exception $e){
+	error_log($e->getMessage());
 	try{
 		$war->delete();
+		$_SESSION['curError'] = 'There was an error trying to create the war. Please try again.';
 	}catch(Exception $e){
-		//ignore
+		error_log($e->getMessage());
+		$_SESSION['curError'] = 'There was an unexpected error.';
 	}
-	$_SESSION['curError'] = 'There was an error trying to create the war. Please try again.';
 	header('Location: /clan.php?clanId=' . $clan->get('id'));
 }
 exit;

@@ -31,7 +31,7 @@ try{
 	$clan->create($clanTag);
 }
 unsetAll();
-if(refreshClanInfo($clan) === false){
+if(refreshClanInfo($clan, true) === false){
 	$clan->delete();
 	$_SESSION['curError'] = 'Clan Tag was not found in Clash of Clans.';
 	header('Location: /clans.php');

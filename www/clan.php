@@ -13,7 +13,7 @@ try{
 }catch(NoResultFoundException $e){
 	$clan = new Clan();
 	$clan->create($clanId);
-	$apiResult = refreshClanInfo($clan, isset($force));
+	$apiResult = refreshClanInfo($clan, true);
 	if($apiResult === false){
 		$clan->delete();
 		$_SESSION['curError'] = 'Clan Tag was not found in Clash of Clans.';
