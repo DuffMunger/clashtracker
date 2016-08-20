@@ -25,8 +25,8 @@ if($war->isClanInWar($clanId)){
 	$clan2 = $war->get('clan2');
 }
 
-if(!$war->isEditable()){
-	$_SESSION['curError'] = 'This war is no longer editable.';
+if(!$war->isBattleDay()){
+	$_SESSION['curError'] = 'Removing war attacks is only available during battle day.';
 	if(isset($clanId)){
 		header('Location: /war.php?warId=' . $war->get('id') . '&clanId=' . $clanId);
 		exit;

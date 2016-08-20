@@ -15,6 +15,10 @@ class War{
 	private $destruction;
 	private $experience;
 	private $messages;
+	private $status;
+	const PREPARATION = 0;
+	const BATTLE = 1;
+	const COMPLETE = 2;
 
 	private $acceptGet = array(
 		'id' => 'id',
@@ -23,7 +27,8 @@ class War{
 		'size' => 'size',
 		'date_created' => 'dateCreated',
 		'date_modified' => 'dateModified',
-		'stars_locked' => 'starsLocked'
+		'stars_locked' => 'starsLocked',
+		'status' => 'status'
 	);
 
 	private $acceptSet = array(
@@ -33,7 +38,8 @@ class War{
 		'first_clan_stars' => 'firstClanStars',
 		'second_clan_stars' => 'secondClanStars',
 		'clan_stars' => 'clanStars',
-		'clan_message' => 'clanMessage'
+		'clan_message' => 'clanMessage',
+		'status' => 'status'
 	);
 
 	public function create($clan1, $clan2, $size){
@@ -98,6 +104,7 @@ class War{
 					$this->destruction[$this->secondClanId] = $record->second_clan_destruction;
 					$this->experience[$this->firstClanId] = $record->first_clan_experience;
 					$this->experience[$this->secondClanId] = $record->second_clan_experience;
+					$this->status = $record->status;
 				}else{
 					throw new NoResultFoundException('No clan found with id ' . $this->id);
 				}
@@ -136,6 +143,7 @@ class War{
 		$this->destruction[$this->secondClanId] = $warObj->second_clan_destruction;
 		$this->experience[$this->firstClanId] = $warObj->first_clan_experience;
 		$this->experience[$this->secondClanId] = $warObj->second_clan_experience;
+		$this->status = $warObj->status;
 	}
 
 	public function get($prpty){
@@ -716,7 +724,9 @@ class War{
 		}
 	}
 
-	public function isEditable(){
+	// DEPRECATED, will be removed once #46 and #60 are complete and pushed to production
+	public function oldIsEditable(){
+		trigger_error('War::oldIsEditable is deprecated and will be removed at a later date.', E_USER_WARNING);
 		$clan1 = $this->get('clan1');
 		$clan1Wars = $clan1->getWars();
 		$isClan1CurrWar = $clan1Wars[0]->get('id') == $this->id;
@@ -726,6 +736,22 @@ class War{
 		$isClan2CurrWar = $clan2Wars[0]->get('id') == $this->id;
 
 		return $isClan1CurrWar && $isClan2CurrWar;
+	}
+
+	public function isEditable(){
+		return $this->isBattleDay() || $this->isPreparationDay();
+	}
+
+	public function isPreparationDay(){
+		return $this->status == $this::PREPARATION;
+	}
+
+	public function isBattleDay(){
+		return $this->status == $this::BATTLE;
+	}
+
+	public function isComplete(){
+		return $this->status == $this::COMPLETE;
 	}
 
 	public function revokeAllAccess(){

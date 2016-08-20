@@ -33,10 +33,19 @@ if($war->isClanInWar($clanId)){
 	$clanIdText = '';
 }
 
-if(!$war->isEditable()){
+if(!$war->isPreparationDay()){
 	$_SESSION['curError'] = 'This war is no longer editable.';
 	header('Location: /war.php?warId=' . $war->get('id') . $clanIdText);
 	exit;
+if(!$war->isPreparationDay()){
+	$_SESSION['curError'] = 'Adding players to war is only available during the war preparation period.';
+	if(isset($clanId)){
+		header('Location: /war.php?warId=' . $war->get('id') . '&clanId=' . $clanId);
+		exit;
+	}else{
+		header('Location: /war.php?warId=' . $war->get('id'));
+		exit;
+	}
 }
 
 if(!userHasAccessToUpdateWar($war)){

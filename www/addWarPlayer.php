@@ -26,8 +26,8 @@ if($war->isClanInWar($clanId)){
 	$clanId = null;
 }
 
-if(!$war->isEditable()){
-	$_SESSION['curError'] = 'This war is no longer editable.';
+if(!$war->isPreparationDay()){
+	$_SESSION['curError'] = 'Adding war players is only available during the war preparation period.';
 	if(isset($clanId)){
 		header('Location: /war.php?warId=' . $war->get('id') . '&clanId=' . $clanId);
 		exit;
