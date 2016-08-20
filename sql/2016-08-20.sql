@@ -10,3 +10,4 @@ create table war_assignment(
 	foreign key(war_id, assigned_player_id) references war_player(war_id, player_id) on delete cascade
 );
 
+alter table war add status int default 0;
