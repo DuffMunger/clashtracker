@@ -19,11 +19,18 @@ foreach ($ips as $ip) {
 		}catch(Exception $e){
 			//ignore
 		}
-		$apiKey = new APIKey();
-		$apiKey->create($ip, $key);
+		try{
+			$apiKey = new APIKey();
+			$apiKey->create($ip, $key);
+		}catch(Exception $e){
+			$_SESSION['curError'] = $e->getMessage();
+			break;
+		}
 	}
 }
 
-$_SESSION['curMessage'] = 'API Keys successfully added.';
+if(!isset($_SESSION['curError'])){
+	$_SESSION['curMessage'] = 'API Keys successfully added.';
+}
 header('Location: /dev.php');
 exit;

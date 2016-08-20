@@ -4,7 +4,7 @@ require('session.php');
 
 $warId = $_POST['warId'];
 try{
-	$war = new war($warId);
+	$war = new War($warId);
 	$warId = $war->get('id');
 }catch(Exception $e){
 	$error = 'No war with id ' . $warId . ' found.';
@@ -14,7 +14,7 @@ try{
 
 $clanId = $_POST['clanId'];
 if($war->isClanInWar($clanId)){
-	$clan1 = new clan($clanId);
+	$clan1 = new Clan($clanId);
 	$clanId = $clan1->get('id');
 	$clan2 = $war->getEnemy($clanId);
 	$clanIdText = '&clanId=' . $clan1->get('id');
@@ -25,7 +25,8 @@ if($war->isClanInWar($clanId)){
 	$clan2 = $war->get('clan2');
 }
 
-if(!userHasAccessToUpdateClan($war->get('clan1'))){
+$userCanEdit = $war->isEditable() && userHasAccessToUpdateWar($war);
+if(!$userCanEdit){
 	$error = NO_ACCESS;
 	echo json_encode(array('error' => $error));
 	exit;
@@ -33,7 +34,7 @@ if(!userHasAccessToUpdateClan($war->get('clan1'))){
 
 $playerId = $_POST['playerId'];
 if($war->isPlayerInWar($playerId)){
-	$player = new player($playerId);
+	$player = new Player($playerId);
 	$playerId = $player->get('id');
 }else{
 	$error = 'Player not in war.';

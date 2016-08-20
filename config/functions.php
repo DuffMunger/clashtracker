@@ -440,22 +440,26 @@ function cpr($var, $limit=2, $tab=""){
 }
 
 function email($to, $subject, $message, $from){
-	try{
-		$sendgrid_username = $_ENV['SENDGRID_USERNAME'];
-		$sendgrid_password = $_ENV['SENDGRID_PASSWORD'];
-		$sendgrid = new SendGrid($sendgrid_username, $sendgrid_password, array("turn_off_ssl_verification" => true));
-		$email = new SendGrid\Email();
-		$email->addTo($to)->
-				setFrom($from)->
-				setSubject($subject)->
-				setText($message)->
-				addHeader('X-Sent-Using', 'SendGrid-API')->
-				addHeader('X-Transport', 'web');
-		$response = $sendgrid->send($email);
-		$responseBody = $response->getBody();
-		return isset($responseBody) && $responseBody['message'] == 'success';
-	}catch(Exception $e){
-		error_log($e->getMessage());
+	if(HEROKU && PRODUCTION){
+		try{
+			$sendgrid_username = $_ENV['SENDGRID_USERNAME'];
+			$sendgrid_password = $_ENV['SENDGRID_PASSWORD'];
+			$sendgrid = new SendGrid($sendgrid_username, $sendgrid_password, array("turn_off_ssl_verification" => true));
+			$email = new SendGrid\Email();
+			$email->addTo($to)->
+					setFrom($from)->
+					setSubject($subject)->
+					setText($message)->
+					addHeader('X-Sent-Using', 'SendGrid-API')->
+					addHeader('X-Transport', 'web');
+			$response = $sendgrid->send($email);
+			$responseBody = $response->getBody();
+			return isset($responseBody) && $responseBody['message'] == 'success';
+		}catch(Exception $e){
+			error_log($e->getMessage());
+			return false;
+		}
+	}else{
 		return false;
 	}
 }
@@ -471,4 +475,52 @@ function correctDateFormat($date){
 function displayName($name){
 	$name = htmlspecialchars($name);
 	return str_replace(' ', '&nbsp;', $name);
+}
+
+function sanitizeClanWarMessage($message){
+	$tags = array('b','strong','i','em','mark','small','del','ins','sub','sup');
+	$stack = array();
+	$sanitized = '';
+	for ($i=0; $i < strlen($message); $i++) {
+		if(substr($message,$i,1)=="\n"){
+			$sanitized .= '<br>';
+			continue;
+		}
+		if(count($stack)>0){
+			$endTag = endTag(end($stack));
+			if($endTag == substr($message,$i,strlen($endTag))){
+				array_pop($stack);
+				$sanitized .= $endTag;
+				$i+=strlen($endTag)-1;
+				continue;
+			}
+		}
+		foreach ($tags as $tag) {
+			$startTag = startTag($tag);
+			if($startTag == substr($message,$i,strlen($startTag))){
+				array_push($stack, $tag);
+				$sanitized .= $startTag;
+				$i+=strlen($startTag);
+				continue;
+			}
+		}
+		$sanitized .= htmlspecialchars(substr($message,$i,1));
+	}
+	$stack = array_reverse($stack);
+	foreach ($stack as $tag) {
+		$sanitized .= endTag($tag);
+	}
+	return $sanitized;
+}
+
+function startTag($tag){
+	return "<$tag>";
+}
+
+function endTag($tag){
+	return "</$tag>";
+}
+
+function linkify($string){
+	return MakeItLink::transform($string);
 }

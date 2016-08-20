@@ -14,12 +14,15 @@ class War{
 	private $starsLocked;
 	private $destruction;
 	private $experience;
+	private $messages;
 
 	private $acceptGet = array(
 		'id' => 'id',
 		'first_clan_id' => 'firstClanId',
 		'second_clan_id' => 'secondClanId',
 		'size' => 'size',
+		'first_clan_message' => 'firstClanMessage',
+		'second_clan_message' => 'secondClanMessage',
 		'date_created' => 'dateCreated',
 		'date_modified' => 'dateModified',
 		'stars_locked' => 'starsLocked'
@@ -27,9 +30,12 @@ class War{
 
 	private $acceptSet = array(
 		'size' => 'size',
+		'first_clan_message' => 'firstClanMessage',
+		'second_clan_message' => 'secondClanMessage',
 		'first_clan_stars' => 'firstClanStars',
 		'second_clan_stars' => 'secondClanStars',
-		'clan_stars' => 'clanStars'
+		'clan_stars' => 'clanStars',
+		'clan_message' => 'clanMessage'
 	);
 
 	public function create($clan1, $clan2, $size){
@@ -60,6 +66,7 @@ class War{
 		$this->clanStars = array();
 		$this->playerRanks = array();
 		$this->playerDefences = array();
+		$this->messages = array();
 		if(isset($id)){
 			$this->id = $id;
 			$this->load();
@@ -82,6 +89,8 @@ class War{
 					$this->firstClanId = $record->first_clan_id;
 					$this->secondClanId = $record->second_clan_id;
 					$this->size = $record->size;
+					$this->messages[$this->firstClanId] = $record->first_clan_message;
+					$this->messages[$this->secondClanId] = $record->second_clan_message;
 					$this->dateCreated = $record->date_created;
 					$this->dateModified = $record->date_modified;
 					$this->clanStars[$this->firstClanId] = $record->first_clan_stars;
@@ -118,6 +127,8 @@ class War{
 		$this->clan2 = new Clan();
 		$this->clan2->loadByObj($clan);
 		$this->size = $warObj->size;
+		$this->messages[$this->firstClanId] = $warObj->first_clan_message;
+		$this->messages[$this->secondClanId] = $warObj->second_clan_message;
 		$this->dateCreated = $warObj->date_created;
 		$this->dateModified = $warObj->date_modified;
 		$this->clanStars[$this->firstClanId] = $warObj->first_clan_stars;
@@ -159,11 +170,13 @@ class War{
 		global $db;
 		if(isset($this->id)){
 			if(in_array($prpty, $this->acceptSet)){
-				if($prpty == 'clanStars'){
+				if($prpty == 'clanStars' || $prpty == 'clanMessage'){
 					if($clanId == $this->firstClanId){
-						$prpty = 'firstClanStars';
+						$prpty = 'first' . ucfirst($prpty);
+					}elseif($clanId == $this->secondClanId){
+						$prpty = 'second' . ucfirst($prpty);
 					}else{
-						$prpty = 'secondClanStars';
+						throw new WarClanException('Clan not in war.');
 					}
 				}
 				$procedure = buildProcedure('p_war_set', $this->id, array_search($prpty, $this->acceptSet), $value, date('Y-m-d H:i:s', time()));
@@ -171,8 +184,10 @@ class War{
 					while ($db->more_results()){
 						$db->next_result();
 					}
-					if($prpty == 'clanStars'){
+					if(strpos($prpty, 'ClanStars') !== false){
 						$this->clanStars[$clanId] = $value;
+					}elseif(strpos($prpty, 'ClanMessage') !== false){
+						$this->messages[$clanId] = $value;
 					}else{
 						$this->$prpty = $value;
 					}
@@ -185,6 +200,14 @@ class War{
 		}else{
 			throw new FunctionCallException('ID not set for set.');
 		}
+	}
+
+	public function getMessage($clanId){
+		$message =  $this->messages[$clanId];
+		if(strlen($message)>0){
+			return $message;
+		}
+		return null;
 	}
 
 	public function isClanInWar($clanId){

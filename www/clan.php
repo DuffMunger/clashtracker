@@ -52,6 +52,8 @@ if(strpos($sort, '_desc') !== FALSE){
 	$sorts[str_replace('_desc', '', $sort)] = str_replace('_desc', '', $sort) . '_desc';
 }
 
+$canForceUpdate = !isset($force) && hourAgo() > strtotime($clan->get('dateModified'));
+
 require('header.php');
 ?>
 <div class="col-md-12">
@@ -107,7 +109,7 @@ require('header.php');
 			<p><?=htmlspecialchars($clan->get('description'));?></p>
 		</div>
 	</div>
-	<?if((count($members)>0 && $userHasAccessToUpdateClan) || count($wars)>0){?>
+	<?if((count($members)>0 && $userHasAccessToUpdateClan) || count($wars)>0 || $canForceUpdate){?>
 		<div class="col-md-12">
 			<div class="col-md-12">
 				<?if(count($members)>0 && $userHasAccessToUpdateClan){?>
@@ -137,7 +139,7 @@ require('header.php');
 				if($canRequest){?>
 					<a type="button" class="btn btn-success" href="/requestClanAccess.php?clanId=<?=$clanId;?>">Request Access</a>
 				<?}
-				if(!isset($force) && isset($loggedInUser) && $loggedInUser->isAdmin()){?>
+				if($canForceUpdate && isset($loggedInUser) && $loggedInUser->isAdmin()){?>
 					<a type="button" class="btn btn-danger" href="/clan.php?clanId=<?=$clanId;?>&force=force">Force Update</a>
 				<?}?>
 				<br><br>

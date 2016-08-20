@@ -521,8 +521,8 @@ $(document).ready(function() {
 		scaleLabel : label,
 		emptyDataMessage: "Oh no! We don't have enough records for this player's loot to display any stats. You can start by adding some above."
 	};
-	var warsAvailable = "<?=$warsAvailable;?>";
-	var attacksAvailable = "<?=(count($attacks)>0);?>";
+	var warsAvailable = <?=json_encode($warsAvailable);?>;
+	var attacksAvailable = <?=json_encode($countAttacks>0);?>;
 	if(attacksAvailable){
 
 		var ctx = $("#attackPie").get(0).getContext("2d");
@@ -560,7 +560,7 @@ $(document).ready(function() {
 		]
 		var attackPieChart = new Chart(ctx).Pie(data,{});
 	}
-	var defenceAvailable = "<?=(count($defences)>0);?>";
+	var defenceAvailable = <?=json_encode($countDefences>0);?>;
 	if(defenceAvailable){
 		var ctx = $("#defencePie").get(0).getContext("2d");
 		var data = [
@@ -595,7 +595,7 @@ $(document).ready(function() {
 });
 var lootChart;
 function showAllTimeGraph(){
-	var lootAvailable = "<?=$lootAvailable;?>";
+	var lootAvailable = <?=json_encode($lootAvailable);?>;
 	if(lootAvailable){
 		var ctx = $("#lootLineChart").get(0).getContext("2d");
 		var data = [
@@ -641,7 +641,7 @@ function showAllTimeGraph(){
 	}
 }
 function showPastYearGraph(){
-	var lootAvailablePastYear = "<?=$lootAvailablePastYear;?>";
+	var lootAvailablePastYear = <?=json_encode($lootAvailablePastYear);?>;
 	if(lootAvailablePastYear){
 		var ctx = $("#lootLineChart").get(0).getContext("2d");
 		var data = [
@@ -687,7 +687,7 @@ function showPastYearGraph(){
 	}
 }
 function showPastMonthGraph(){
-	var lootAvailablePastMonth = "<?=$lootAvailablePastMonth;?>";
+	var lootAvailablePastMonth = <?=json_encode($lootAvailablePastMonth);?>;
 	if(lootAvailablePastMonth){
 		var ctx = $("#lootLineChart").get(0).getContext("2d");
 		var data = [
@@ -733,7 +733,7 @@ function showPastMonthGraph(){
 	}
 }
 function showPastWeekGraph(){
-	var lootAvailablePastWeek = "<?=$lootAvailablePastWeek;?>";
+	var lootAvailablePastWeek = <?=json_encode($lootAvailablePastWeek);?>;
 	if(lootAvailablePastWeek){
 		var ctx = $("#lootLineChart").get(0).getContext("2d");
 		var data = [

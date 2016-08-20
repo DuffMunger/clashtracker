@@ -55,7 +55,7 @@ require('header.php');
 									<img src="<?=$url;?>" height="20" width="20">
 								<?}?>
 							</td>
-							<td onclick="clickRow('player.php?playerId=<?=$player->get("id");?>');"><?=htmlspecialchars($player->get('name'));?></td>
+							<td onclick="clickRow('player.php?playerId=<?=$player->get("id");?>');"><?=displayName($player->get('name'));?></td>
 							<td onclick="clickRow('player.php?playerId=<?=$player->get("id");?>');"><i class="fa fa-certificate" style="color: #43BBE9;"></i>&nbsp;<?=$player->get('level');?></td>
 							<td onclick="clickRow('player.php?playerId=<?=$player->get("id");?>');"><i class="fa fa-trophy" style="color: gold;"></i>&nbsp;<?=$player->get('trophies');?></td>
 							<?$clan = $player->getClan();
@@ -65,7 +65,7 @@ require('header.php');
 									if(strlen($url)>0){?>
 										<img src="<?=$url;?>" height="20" width="20">
 									<?}?>
-									<?=htmlspecialchars($clan->get('name'));?>
+									<?=displayName($clan->get('name'));?>
 								</td>
 							<?}else{?>
 								<td></td>

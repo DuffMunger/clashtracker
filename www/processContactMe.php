@@ -21,7 +21,7 @@ if(strlen($subject)==0){
 	$subject = 'New Clash Tracker Question';
 }
 
-if(!DEVELOPMENT){
+if(PRODUCTION){
 	if(email(User::getAdmin()->get('email'), $subject, $message, 'support@clashtracker.ca')){
 		$_SESSION['curMessage'] = 'Question was successfully submitted. I\'ll get back to you as soon as I can.';
 	}else{
