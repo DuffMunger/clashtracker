@@ -260,33 +260,43 @@ require('header.php');
 	<?}
 	$showTabs = count($warAttacks) > 0 || count($requests) > 0 || count($allowedUsers) > 0 || $canRequestAccess || (!isset($clanMessage) && $userCanEditClanMessage);
 	$otherTabs = count($warAttacks) > 0 || count($requests) > 0 || count($allowedUsers) > 0 || $canRequestAccess;?>
-	<div id="tabs" class="col-md-12 <?=$showTabs ? '' : 'hidden';?>">
-		<ul class="nav nav-pills" role="tablist">
-			<li id="warPlayersTab" role="presentation" class="active" name="warPlayers">
-				<a style="cursor: pointer;">War Players</a>
-			</li>
-			<?if(count($warAttacks) > 0){?>
-				<li id="warAttacksTab" role="presentation" name="warAttacks">
-					<a style="cursor: pointer;">War Events</a>
+	<div class="col-md-12">
+		<div id="tabs" class="col-sm-11 <?=$showTabs ? '' : 'hidden';?>">
+			<ul class="nav nav-pills" role="tablist">
+				<li id="warPlayersTab" role="presentation" class="active" name="warPlayers">
+					<a style="cursor: pointer;">War Players</a>
 				</li>
-			<?}if(count($requests) > 0){?>
-				<li id="editRequestsTab" role="presentation" name="editRequests">
-					<a style="cursor: pointer;">Edit Requests</a>
-				</li>
-			<?}if(count($allowedUsers) > 0){?>
-				<li id="allowedUsersTab" role="presentation" name="allowedUsers">
-					<a style="cursor: pointer;">Allowed Users</a>
-				</li>
-			<?}if($canRequestAccess){?>
-				<li id="requestAccessTab" role="presentation" name="requestAccess">
-					<a style="cursor: pointer;">Request Access</a>
-				</li>
-			<?}if($userCanEditClanMessage){?>
-				<li id="addMessageTab" role="presentation" name="addMessage" class="<?=isset($clanMessage) ? 'hidden' : '';?>">
-					<a style="cursor: pointer;">Add War Message</a>
-				</li>
+				<?if(count($warAttacks) > 0){?>
+					<li id="warAttacksTab" role="presentation" name="warAttacks">
+						<a style="cursor: pointer;">War Events</a>
+					</li>
+				<?}if(count($requests) > 0){?>
+					<li id="editRequestsTab" role="presentation" name="editRequests">
+						<a style="cursor: pointer;">Edit Requests</a>
+					</li>
+				<?}if(count($allowedUsers) > 0){?>
+					<li id="allowedUsersTab" role="presentation" name="allowedUsers">
+						<a style="cursor: pointer;">Allowed Users</a>
+					</li>
+				<?}if($canRequestAccess){?>
+					<li id="requestAccessTab" role="presentation" name="requestAccess">
+						<a style="cursor: pointer;">Request Access</a>
+					</li>
+				<?}if($userCanEditClanMessage){?>
+					<li id="addMessageTab" role="presentation" name="addMessage" class="<?=isset($clanMessage) ? 'hidden' : '';?>">
+						<a style="cursor: pointer;">Add War Message</a>
+					</li>
+				<?}?>
+			</ul>
+		</div>
+		<div id="transition" class="text-right <?=$showTabs ? 'col-sm-1' : 'col-sm-12';?>">
+			<?if($preparationDay && !$clan1CanAddMore && !$clan2CanAddMore){?>
+				<button type="button" class="btn btn-primary" onclick="transitionToBattleDay()">Battle Day</button>
 			<?}?>
-		</ul>
+			<?if($battleDay){?>
+				<button type="button" class="btn btn-primary" onclick="completeWar()">Complete</button>
+			<?}?>
+		</div>
 	</div>
 	<div id="warPlayers" class="col-md-12">
 		<br>
@@ -781,6 +791,16 @@ require('header.php');
 	</div>
 </div>
 <script type="text/javascript">
+function transitionToBattleDay(){
+	if(confirm('Are you sure you want to go to Battle Day? During Battle Day, players cannot be added or removed from the war.')){
+		clickRow('/processTransitionWar.php?warId=<?=$war->get('id') . $clanIdText;?>');
+	}
+}
+function completeWar(){
+	if(confirm('Are you sure you want to mark this war as complete? Wars that have been completed cannot be updated later on.')){
+		clickRow('/processTransitionWar.php?warId=<?=$war->get('id') . $clanIdText;?>');
+	}
+}
 function showEditMessageForm(){
 	$('#clanMessageDiv').hide();
 	$('#editClanMessageDiv').show();
@@ -808,7 +828,7 @@ function saveMessage(id){
 		}else{
 			var message = data.message;
 			$('#clanMessage').html(message);
-			$('#newMessage').html(data.textarea);
+			$('#newMessage').val(data.textarea);
 			var height = (message.match(/\<br\>/g) || []).length+1;
 			$('#newMessage').prop('rows', height)
 			checkMessageStatus();
@@ -822,6 +842,8 @@ function checkMessageStatus(){
 		$('#clanMessageWrapper').addClass('hidden');
 		$('#addMessageTab').removeClass('hidden');
 		$('#tabs').removeClass('hidden');
+		$('#transition').addClass('col-sm-1');
+		$('#transition').removeClass('col-sm-12');
 		$('#addClanMessage').val('');
 	}else{
 		$('#warPlayersTab').click();
@@ -829,6 +851,8 @@ function checkMessageStatus(){
 		$('#addMessageTab').addClass('hidden');
 		if(!<?=json_encode($otherTabs);?>){
 			$('#tabs').addClass('hidden');
+			$('#transition').addClass('col-sm-12');
+			$('#transition').removeClass('col-sm-1');
 		}
 		showMessage();
 	}
