@@ -157,7 +157,7 @@ require('header.php');
 										<td onclick="selectMember(<?=$member->get('id');?>);">
 											<div class="checkbox">
 												<div class="col-md-12">
-													<input id="<?=$member->get('id');?>" type="checkbox" name="members[]" value="<?=$member->get('id');?>"><?=htmlspecialchars($member->get('name'));?>
+                                                                                                    <input id="<?=$member->get('id');?>" type="checkbox" name="members[]" value="<?=$member->get('id');?>"><?=htmlspecialchars($member->get('name'));?><span class="label label-info playerTag"><?=htmlspecialchars($member->get('tag'));?></span>
 												</div>
 											</div>
 										</td>
