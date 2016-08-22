@@ -175,7 +175,7 @@ require('header.php');
 								<td><i class="fa fa-trophy" style="color: gold;"></i>&nbsp;<?=$member->get('trophies');?></td>
 								<td><?=$member->get('donations');?></td>
 								<td><?=$member->get('received');?></td>
-								<td class="text-right"><?=$member->get('tag');?></td>
+								<td class="text-right"><span class="label label-info playerTag"><?=htmlspecialchars($member->get('tag'));?></span></td>
 							</tr>
 						<?}?>
 					</tbody>

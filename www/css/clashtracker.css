@@ -24,10 +24,10 @@
 
 span.playerTag {
     font-size: 100%;
-    position: absolute;
-    right: 0px;
     border-top-right-radius: 6px;
     border-bottom-left-radius: 6px;
+    width: 100px;
+    float:right;
 }
 
 .attack {
@@ -39,6 +39,10 @@ span.playerTag {
     background-color: #f2dede;
     border-bottom: 1px solid #999999;
 }
+
+/* navbar styling */
+
+.label,.fa { margin-right:5px; }
 
 /* @media (max-width: 768px) {
     .panel-heading.war-events .div.text-left
