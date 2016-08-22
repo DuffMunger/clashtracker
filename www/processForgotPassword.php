@@ -39,7 +39,7 @@ if(email($email, $subject, $message, 'password@clashtracker.ca')){
 	$_SESSION['curMessage'] = 'Password reset email successfully sent. It may take a few minutes to arrive.';
 	header('Location: /login.php');
 }else{
-	if(DEVELOPMENT){
+	if(!HEROKU || !PRODUCTION){
 		$_SESSION['curError'] = 'Your password was reset however sending emails is disabled on the development version of Clash Tracker. Check the Error Logs for your new password.';
 		error_log($newPassword);
 	}else{

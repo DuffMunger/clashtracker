@@ -21,8 +21,6 @@ class War{
 		'first_clan_id' => 'firstClanId',
 		'second_clan_id' => 'secondClanId',
 		'size' => 'size',
-		'first_clan_message' => 'firstClanMessage',
-		'second_clan_message' => 'secondClanMessage',
 		'date_created' => 'dateCreated',
 		'date_modified' => 'dateModified',
 		'stars_locked' => 'starsLocked'

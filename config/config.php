@@ -47,7 +47,11 @@ foreach ($apiClasses as $key => $apiClass) {
 }
 $apiClasses = array_values($apiClasses);
 
-define('DEVELOPMENT', !isset($_ENV['PRODUCTION']));
+define('HEROKU', isset($_ENV['HEROKU']));
+
+define('PRODUCTION', isset($_ENV['PRODUCTION']));
+define('STAGING', isset($_ENV['STAGING']));
+define('DEVELOPMENT', !PRODUCTION && !STAGING);
 if(DEVELOPMENT){
 	//	Configuration for the MySQL Local Server
 	define('DBHOST', 'localhost');
