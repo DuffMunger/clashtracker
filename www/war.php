@@ -541,94 +541,121 @@ require('header.php');
 		</div>
 	</div>
 	<?if(count($warAttacks) > 0){?>
-		<div id="warAttacks" class="col-md-12 hidden">
-			<div class="table-responsive">
-				<table class="table table-hover">
-					<thead>
-						<tr>
-							<th class="text-left">
-								<h3 style="cursor: pointer;" onclick="clickRow('clan.php?clanId=<?=$clan1->get("id");?>');">
-									<?=displayName($clan1->get('name'));?>
-								</h3>
-							</th>
-							<?if($userCanEdit){?>
-								<th class="text-center">Actions</th>
-							<?}?>
-							<th class="text-right">
-								<h3 style="cursor: pointer;" onclick="clickRow('clan.php?clanId=<?=$clan2->get("id");?>');">
-									<?=displayName($clan2->get('name'));?>
-								</h3>
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						<?foreach ($warAttacks as $attack) {
-							$attacker = $warPlayers[$attack['attackerId']];
-							$defender = $warPlayers[$attack['defenderId']];
-							$attackerRank = $war->getPlayerRank($attacker->get('id'));
-							$defenderRank = $war->getPlayerRank($defender->get('id'));
-							$attackerClanId = $attack['attackerClanId'];
-							$totalStars = $attack['totalStars'];
-							$newStars = $attack['newStars'];?>
-							<tr>
-								<?if($attackerClanId == $clan1->get('id')){?>
-									<td class="text-left"><strong class="rank-<?=$attacker->get('id');?>"><?=$attackerRank . '.&nbsp;' . displayName($attacker->get('name'));?></strong>&nbsp;<i class="fa fa-star"></i><br>
-										<?for($i=$totalStars-$newStars;$i>0;$i--){?>
-											<i class="fa fa-star" style="color: silver;"></i>
-										<?}
-										for($i=$newStars;$i>0;$i--){?>
-											<i class="fa fa-star" style="color: gold;"></i>
-										<?}
-										for($i=$totalStars;$i<3;$i++){?>
-											<i class="fa fa-star-o" style="color: silver;"></i>
-										<?}?>
-									</td>
-									<?if($userCanEdit){?>
-										<td class="text-center">
-											<a type="button" class="btn btn-sm btn-success" href="/editWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?><?=$clanIdText;?>">Edit</a>
-											<a type="button" class="btn btn-sm btn-danger" href="/processRemoveWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?><?=$clanIdText;?>" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Click to remove this attack from the war.">&times;</a>
-										</td>
-									<?}?>
-									<td class="text-right"><i class="fa fa-shield"></i>&nbsp;<strong class="rank-<?=$defender->get('id');?>"><?=$defenderRank . '. ' . displayName($defender->get('name'));?></strong><br>
-										<?if($totalStars==0){?>
-											<i>Defended</i>
-										<?}else{?>
-											<i>Defeat</i>
-										<?}?>
-									</td>
-								<?}else{?>
-									<td class="text-left"><strong class="rank-<?=$defender->get('id');?>"><?=$defenderRank . '. ' . displayName($defender->get('name'));?></strong>&nbsp;<i class="fa fa-shield"></i><br>
-										<?if($totalStars==0){?>
-											<i>Defended</i>
-										<?}else{?>
-											<i>Defeat</i>
-										<?}?>
-									</td>
-									<?if($userCanEdit){?>
-										<td class="text-center">
-											<a type="button" class="btn btn-sm btn-success" href="/editWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?><?=$clanIdText;?>">Edit</a>
-											<a type="button" class="btn btn-sm btn-danger" href="/processRemoveWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?><?=$clanIdText;?>" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Click to remove this attack from the war.">&times;</a>
-										</td>
-									<?}?>
-									<td class="text-right"><i class="fa fa-star"></i>&nbsp;<strong class="rank-<?=$attacker->get('id');?>"><?=$attackerRank . '.&nbsp;' . displayName($attacker->get('name'));?></strong><br>
-										<?for($i=$totalStars-$newStars;$i>0;$i--){?>
-											<i class="fa fa-star" style="color: silver;"></i>
-										<?}
-										for($i=$newStars;$i>0;$i--){?>
-											<i class="fa fa-star" style="color: gold;"></i>
-										<?}
-										for($i=$totalStars;$i<3;$i++){?>
-											<i class="fa fa-star-o" style="color: silver;"></i>
-										<?}?></td>
-									</td>
-								<?}?>
-							</tr>
-						<?}?>
-					</tbody>
-				</table>
-			</div>
-		</div>
-	<?}if(count($requests) > 0){?>
+		<div id="warAttacks" class="col-md-12 hidden"> <!-- start war events tab -->
+                        <div class="panel panel-default"> <!-- start panel -->
+                                <div class="panel-heading"> <!-- start panel heading -->
+                                        <?if($userCanEdit){?>
+                                                <div class="col-xs-12 col-sm-5 left">
+                                        <?}else{?>
+                                                <div class="col-xs-12 col-sm-6 left">
+                                        <?}?>
+                                                        <h3 style="cursor: pointer;" onclick="clickRow('clan.php?clanId=<?=$clan1->get("id");?>');">
+                                                        <?=displayName($clan1->get('name'));?>
+                                                        </h3>
+                                                </div>
+                                        <?if($userCanEdit){?>
+                                                <div class="col-xs-12  col-sm-2 center">Action<br><i class="fa fa-angle-double-down" aria-hidden="true"></i></div>
+                                                <div class="col-xs-12 col-sm-5 right">
+                                        <? }else { ?>
+                                                <div class="col-xs-12 col-sm-6 right">
+                                        <?}?>
+                                                        <h3 style="cursor: pointer;" onclick="clickRow('clan.php?clanId=<?=$clan2->get("id");?>');">
+                                                        <?=displayName($clan2->get('name'));?>
+                                                        </h3>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                </div> <!-- end panel heading -->
+                                <ul class="list-group"> <!-- start ul -->
+                                        <?foreach ($warAttacks as $attack) {
+                                                $attacker = $warPlayers[$attack['attackerId']];
+                                                $defender = $warPlayers[$attack['defenderId']];
+                                                $attackerRank = $war->getPlayerRank($attacker->get('id'));
+                                                $defenderRank = $war->getPlayerRank($defender->get('id'));
+                                                $attackerClanId = $attack['attackerClanId'];
+                                                $totalStars = $attack['totalStars'];
+                                                $newStars = $attack['newStars'];
+                                        ?>
+                                                <?if($attackerClanId == $clan1->get('id')){?>
+                                                        <li class="list-group-item attack">
+                                                                <?if($userCanEdit){?>
+                                                                        <div class="col-xs-5 left">
+                                                                <?}else{?>
+                                                                        <div class="col-xs-6 left">
+                                                                <?}?>
+                                                                                <strong class="rank-<?=$attacker->get('id');?>"><?=$attackerRank . '.&nbsp;' . displayName($attacker->get('name'));?></strong>&nbsp;<i class="fa fa-star"></i>
+                                                                                <br>
+                                                                                <?for($i=$totalStars-$newStars;$i>0;$i--){?>
+                                                                                        <i class="fa fa-star" style="color: silver;"></i>
+                                                                                <?}
+                                                                                for($i=$newStars;$i>0;$i--){?>
+                                                                                        <i class="fa fa-star" style="color: gold;"></i>
+                                                                                <?}
+                                                                                for($i=$totalStars;$i<3;$i++){?>
+                                                                                        <i class="fa fa-star-o" style="color: silver;"></i>
+                                                                                <?}?>
+                                                                        </div>
+                                                                <?if($userCanEdit){?>
+                                                                        <div class="col-xs-2 center">
+                                                                                <a type="button" class="btn btn-sm btn-success" href="/editWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?><?=$clanIdText;?>">Edit</a>
+                                                                                <a type="button" class="btn btn-sm btn-danger" href="/processRemoveWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?><?=$clanIdText;?>" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Click to remove this attack from the war.">&times;</a>
+                                                                        </div>
+                                                                        <div class="col-xs-5 right">
+                                                                <?}else{?>
+                                                                        <div class="col-xs-6 right">
+                                                                <?}?>
+                                                                                <i class="fa fa-shield"></i>&nbsp;<strong class="rank-<?=$defender->get('id');?>"><?=$defenderRank . '. ' . displayName($defender->get('name'));?></strong><br>
+                                                                                        <?if($totalStars==0){?>
+                                                                                                <i>Defended</i>
+                                                                                        <?}else{?>
+                                                                                                <i>Defeat</i>
+                                                                                        <?}?>
+                                                                        </div>
+                                                                        <div class="clearfix"></div>
+                                                        </li>
+                                                <?}else{?>
+                                                        <li class="list-group-item defense">
+                                                                <?if($userCanEdit){?>
+                                                                        <div class="col-xs-5 left">
+                                                                <?}else{?>
+                                                                        <div class="col-xs-6 left">
+                                                                <?}?>
+                                                                                <strong class="rank-<?=$defender->get('id');?>"><?=$defenderRank . '. ' . displayName($defender->get('name'));?></strong>&nbsp;<i class="fa fa-shield"></i>
+                                                                                <br>
+                                                                                        <?if($totalStars==0){?>
+                                                                                                <i>Defended</i>
+                                                                                        <?}else{?>
+                                                                                                <i>Defeat</i>
+                                                                                        <?}?>
+                                                                        </div>
+                                                                <?if($userCanEdit){?>
+                                                                        <div class="col-xs-2 center">
+                                                                                <a type="button" class="btn btn-sm btn-success" href="/editWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?><?=$clanIdText;?>">Edit</a>
+                                                                                <a type="button" class="btn btn-sm btn-danger" href="/processRemoveWarAttack.php?warId=<?=$war->get('id');?>&attackerId=<?=$attacker->get('id');?>&defenderId=<?=$defender->get('id');?><?=$clanIdText;?>" data-toggle="popover" data-trigger="hover" data-placement="top" data-content="Click to remove this attack from the war.">&times;</a>
+                                                                        </div>
+                                                                        <div class="col-xs-5 right">
+                                                                <?}else{?>
+                                                                        <div class="col-xs-6 right">
+                                                                <?}?>
+                                                                                <i class="fa fa-star"></i><strong class="rank-<?=$attacker->get('id');?>"><?=$attackerRank . '.&nbsp;' . displayName($attacker->get('name'));?></strong><br>
+                                                                                        <?for($i=$totalStars-$newStars;$i>0;$i--){?>
+                                                                                                <i class="fa fa-star" style="color: silver;"></i>
+                                                                                        <?}
+                                                                                        for($i=$newStars;$i>0;$i--){?>
+                                                                                                <i class="fa fa-star" style="color: gold;"></i>
+                                                                                        <?}
+                                                                                        for($i=$totalStars;$i<3;$i++){?>
+                                                                                                <i class="fa fa-star-o" style="color: silver;"></i>
+                                                                                        <?}?>
+                                                                        </div>
+                                                                        <div class="clearfix"></div>
+                                                        </li>
+                                                <?}
+                                        }?> <!-- end for each li -->
+                                </ul>
+                        </div> <!--end panel -->
+		</div> <!--  end war events tab -->
+	<?}?> <!-- end of count war attacks -->
+        <?if(count($requests) > 0){?>
 		<div id="editRequests" class="col-md-12 hidden">
 			<div class="col-md-12"><br>
 				<div class="alert alert-info" role="alert">
