@@ -32,14 +32,15 @@ try{
 	header('Location: /forgotPassword.php');
 	exit;
 }
-$link = "http://clashtracker.ca/login.php";
-$subject = "Forgotten Password";
-$message = "Hello,\n\n\tWe have received a request to reset the password on your Clash Tracker account. Your new password is " . $newPassword . ". We recommend changing you password immediately after using this one to sign in. You can click on the below link to sign in now: " . $link . "\nPlease do not reply to this email.\nClash on,\n\nClash&nbsp;Tracker Account Support\n";
-if(email($email, $subject, $message, 'password@clashtracker.ca')){
+$url = url();
+$subject = 'Forgotten Password';
+$from = $senderPassword;
+$message = 'Hello,<br><br>We have received a request to reset the password on your Clash Tracker account.<br>Your new password is <strong>' . $newPassword . '</strong>.<br>We recommend changing you password immediately after using this one to sign in.<br>You can click on the below link to sign in now: <a href="' . $url . '">'. $url .'</a><br>Please do not reply to this email.<br><br>Clash on,<br><br>Clash Tracker Account Support';
+if(email($email, $subject, $message, $headers, $from)){
 	$_SESSION['curMessage'] = 'Password reset email successfully sent. It may take a few minutes to arrive.';
 	header('Location: /login.php');
 }else{
-	if(!HEROKU || !PRODUCTION){
+	if(DEVELOPMENT){
 		$_SESSION['curError'] = 'Your password was reset however sending emails is disabled on the development version of Clash Tracker. Check the Error Logs for your new password.';
 		error_log($newPassword);
 	}else{

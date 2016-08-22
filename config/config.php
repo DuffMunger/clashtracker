@@ -12,7 +12,7 @@ define('NO_ACCESS', 'You do not have access to that page.');
 $dir = str_replace('/config', '', __DIR__);
 define('APPROOT', $dir);
 
-date_default_timezone_set('America/Halifax');
+date_default_timezone_set('Europe/Amsterdam');
 session_start();
 
 $classes = scandir(APPROOT . '/classes');
@@ -52,19 +52,35 @@ define('HEROKU', isset($_ENV['HEROKU']));
 define('PRODUCTION', isset($_ENV['PRODUCTION']));
 define('STAGING', isset($_ENV['STAGING']));
 define('DEVELOPMENT', !PRODUCTION && !STAGING);
-if(DEVELOPMENT){
+define('RHITNL', true);
+if(RHITNL){
 	//	Configuration for the MySQL Local Server
 	define('DBHOST', 'localhost');
-	define('DBNAME', 'clash');
-	define('DBUSER', 'clash');
-	define('DBPASS', 'cl@sh!');
+	define('DBNAME', 'dbname');
+	define('DBUSER', 'dbuser');
+	define('DBPASS', 'dbpass');
 }else{
 	$url = parse_url($_ENV['CLEARDB_DATABASE_URL']);
-	define('DBHOST', $url['host']);
-	define('DBNAME', substr($url['path'], 1));
-	define('DBUSER', $url['user']);
-	define('DBPASS', $url['pass']);
+	define('DBHOST', $url['localhost']);
+	define('DBNAME', 'dbname');
+	define('DBUSER', 'dbuser');
+	define('DBPASS', 'dbpass');
 }
 
 // Create connection
 $db = new mysqli(DBHOST, DBUSER, DBPASS, DBNAME);
+
+//smtp email settings
+$mailFrom = "sender";
+$smtpServer = "localhost";
+$smtpUser = "user";
+$smtpPassword = "pass";
+$smtpPort = "25"; //set as you need. 25 is default
+$smtpSSL = false; //port 25 should be false. port 465 should be true
+
+//default sender addresses
+$senderContactMe = 'john@doe.com'; //set email address for contactform mail
+$senderSignup = 'john@doe.com'; //set email address for signup mail
+$senderPassword = 'john@doe.com'; //set email address for password forgot mail
+
+//

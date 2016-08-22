@@ -3,7 +3,7 @@ require('init.php');
 require('session.php');
 
 $email = $_POST['email'];
-$subject = $_POST['subject'];
+$subject = 'Contactform: '.$_POST['subject'];
 $message = $_POST['message'];
 
 if(strlen($message)==0){
@@ -13,16 +13,16 @@ if(strlen($message)==0){
 }
 
 if(strlen($email)>0){
-	$message .= "\n\nYou can reply to this question by emailing " . $email;
+	$message .= "<br>You can reply to this question by emailing <a href='mailto:".$email."'>" . $email."</a>";
 }
-$message .= "\n\nClash on!";
+$message .= "<br><br>Clash on!";
 
 if(strlen($subject)==0){
 	$subject = 'New Clash Tracker Question';
 }
 
-if(PRODUCTION){
-	if(email(User::getAdmin()->get('email'), $subject, $message, 'support@clashtracker.ca')){
+if(RHITNL){
+	if(email(User::getAdmin()->get('email'), $subject, $message, $headers, $senderContactMe)){
 		$_SESSION['curMessage'] = 'Question was successfully submitted. I\'ll get back to you as soon as I can.';
 	}else{
 		$_SESSION['curError'] = 'There was a problem submitting the question. Please try <a href="http://www.twitter.com/clashsolo"><i class="fa fa-twitter" style="color: #3C90E8;"></i>&nbsp;Twitter</a>.';

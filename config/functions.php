@@ -1,6 +1,6 @@
 <?
 require('config.php');
-require('../vendor/autoload.php');
+require('../private/vendor/autoload.php');
 
 function rankFromCode($code){
 	$ranks = array('1' => 'Leader',
@@ -439,7 +439,7 @@ function cpr($var, $limit=2, $tab=""){
 	return $val;
 }
 
-function email($to, $subject, $message, $from){
+function email($to, $subject, $message, $headers, $from){
 	if(HEROKU && PRODUCTION){
 		try{
 			$sendgrid_username = $_ENV['SENDGRID_USERNAME'];
@@ -459,9 +459,24 @@ function email($to, $subject, $message, $from){
 			error_log($e->getMessage());
 			return false;
 		}
+	}elseif(RHITNL){
+            
+                try{
+                        $headers   = array();
+                        $headers[] = 'MIME-Version: 1.0';
+                        $headers[] = 'Content-type: text/html; charset=iso-8859-1';
+                        $headers[] = 'From: ClashTracker <'.$from.'>';
+                        $headers[] = 'Reply-To: ClashTracker <'.$from.'>';
+                        $headers[] = 'Subject: '.$subject;
+                        $headers[] = 'X-Mailer: PHP/'.phpversion();
+                        return mail($to, $subject, $message, implode("\r\n", $headers), $from);
+                }catch(Exception $e){
+                        error_log($e->getMessage());
+                        return false;
+                }
 	}else{
-		return false;
-	}
+                return false;
+        }
 }
 
 function correctDateFormat($date){
@@ -523,4 +538,14 @@ function endTag($tag){
 
 function linkify($string){
 	return MakeItLink::transform($string);
+}
+
+function url(){ //get the correct subscription URL without setting it anywhere in config.
+    if(isset($_SERVER['HTTPS'])){
+        $protocol = ($_SERVER['HTTPS'] && $_SERVER['HTTPS'] != "off") ? "https" : "http";
+    }
+    else{
+        $protocol = 'http';
+    }
+    return $protocol . "://" . $_SERVER['HTTP_HOST'];
 }

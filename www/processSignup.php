@@ -45,8 +45,8 @@ try{
 }
 
 $_SESSION['user_id'] = $user->get('id');
-if(PRODUCTION){
-	email(User::getAdmin()->get('email'), 'New Clash Tracker User!', 'There is a new user using Clash Tracker! Their email is ' . $email . ". Welcome them to the site!\n\nClash on!", 'activity@clashtracker.ca');
+if(!DEVELOPMENT){
+	email(User::getAdmin()->get('email'), 'New Clash Tracker User!', 'There is a new user using Clash Tracker! Their email is ' . $email . ". Welcome them to the site!\n\nClash on!", $senderSignup);
 }
 unsetAll();
 header('Location: /home.php');

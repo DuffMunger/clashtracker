@@ -1,3 +1,6 @@
+body {
+    padding-top: 70px;
+}
 .destruction {
     vertical-align: middle;
     font-size: 0.8em;
@@ -30,31 +33,18 @@ span.playerTag {
     float:right;
 }
 
-.attack {
+li.list-group-item.attack {
     background-color: #dff0d8;
-    border-bottom: 1px solid #999999;
+    border-bottom: 2px solid #FFF !important;
 }
 
-.defense {
+li.list-group-item.defense {
     background-color: #f2dede;
-    border-bottom: 1px solid #999999;
+    border-bottom: 2px solid #FFF !important;
 }
 
 /* navbar styling */
 
-.label,.fa { margin-right:5px; }
-
-/* @media (max-width: 768px) {
-    .panel-heading.war-events .div.text-left
-    #warAttacks.text-left,
-    #warAttacks.text-right,
-    #warAttacks.text-center{
-        text-align: center;
-        float:none;
-    }
-}*/
-/* @media (max-width: 768px) {
-      .col-xs-12.text-right, .col-xs-12.text-left {
-              text-align: center;
-       } 
-    }*/
+.label,.fa,.glyphicon {
+    margin: auto 5px;
+}
