@@ -9,3 +9,4 @@ sql/.DS_Store
 .DS_Store
 vendor/
 .idea/
+/.project
