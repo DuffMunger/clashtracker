@@ -2,6 +2,7 @@
     vertical-align: middle;
     font-size: 0.8em;
 }
+
 .left {
     text-align: left;
 }
@@ -11,6 +12,11 @@
 .center {
     text-align: center;
 }
+
+.clearfix{
+    clear:both;
+}
+
 .inline-input {
 	height: 24px;
 	width: 50px;
@@ -23,3 +29,28 @@ span.playerTag {
     border-top-right-radius: 6px;
     border-bottom-left-radius: 6px;
 }
+
+.attack {
+    background-color: #dff0d8;
+    border-bottom: 1px solid #999999;
+}
+
+.defense {
+    background-color: #f2dede;
+    border-bottom: 1px solid #999999;
+}
+
+/* @media (max-width: 768px) {
+    .panel-heading.war-events .div.text-left
+    #warAttacks.text-left,
+    #warAttacks.text-right,
+    #warAttacks.text-center{
+        text-align: center;
+        float:none;
+    }
+}*/
+/* @media (max-width: 768px) {
+      .col-xs-12.text-right, .col-xs-12.text-left {
+              text-align: center;
+       } 
+    }*/
