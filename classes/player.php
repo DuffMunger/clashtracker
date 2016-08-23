@@ -234,6 +234,38 @@ class Player{
 		}
 	}
 
+	public function updateBulk($stats){
+		if(isset($this->id)){
+			global $db;
+			if(count($stats)>0){
+				$query = 'UPDATE player SET ';
+				foreach ($stats as $prpty => $value) {
+					if(in_array($prpty, $this->acceptSet)){
+						$prpty = array_search($prpty, $this->acceptSet);
+						$query .= $prpty . ' = ' . $db->escape_string($value) . ', ';
+						continue;
+					}
+					throw new OperationException('Property is not in accept set.');
+				}
+				$query = trim($query, ', ');
+				$query .= ' WHERE id = ' . $db->escape_string($this->id) . ';';
+				error_log($query);
+				if(($db->multi_query($query)) === TRUE){
+					while ($db->more_results()){
+						$db->next_result();
+					}
+					foreach ($stats as $prpty => $value) {
+						$this->$prpty = $value;
+					}
+					return true;
+				}else{
+					throw new SQLQueryException('The database encountered an error. ' . $db->error);
+				}
+			}
+		}
+		throw FunctionCallException('ID not set for update.');
+	}
+
 	public function updateFromApi($apiMember){
 		global $db;
 		if(isset($this->id)){

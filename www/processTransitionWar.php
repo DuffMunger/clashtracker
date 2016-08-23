@@ -41,7 +41,7 @@ try{
 			exit;
 		}
 	}elseif($war->isBattleDay()){
-		$war->set('status', War::COMPLETE);
+		$war->completeWar();
 		$_SESSION['curMessage'] = 'Successfully completed war.';
 	}
 }catch(Exception $e){

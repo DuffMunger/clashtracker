@@ -55,8 +55,6 @@ class War{
 				}
 				$this->id = $result->id;
 				$this->load();
-				$this->updateClanWarStats($clan1);
-				$this->updateClanWarStats($clan2);
 			}else{
 				throw new SQLQueryException('The database encountered an error. ' . $db->error);
 			}
@@ -483,7 +481,7 @@ class War{
 		}
 	}
 
-	public function getPlayerAttacks($player){
+public function getPlayerAttacks($player){
 		if(isset($this->id)){
 			$playerId = $player->get('id');
 			if(!$this->isPlayerInWar($playerId)){
@@ -754,6 +752,52 @@ class War{
 		return $this->status == $this::COMPLETE;
 	}
 
+	public function completeWar(){
+		if($this->isBattleDay()){
+			global $db;
+			$players = $this->getPlayers();
+			foreach ($players as $player) {
+				$attacks = $this->getPlayerAttacks($player);
+				$defences = $this->getPlayerDefences($player);
+				$stats = array();
+				$stats['firstAttackTotalStars'] = $player->get('firstAttackTotalStars');
+				$stats['firstAttackNewStars'] = $player->get('firstAttackNewStars');
+				$stats['secondAttackTotalStars'] = $player->get('secondAttackTotalStars');
+				$stats['secondAttackNewStars'] = $player->get('secondAttackNewStars');
+				$stats['starsOnDefence'] = $player->get('starsOnDefence');
+				$stats['numberOfDefences'] = $player->get('numberOfDefences');
+				$stats['attacksUsed'] = $player->get('attacksUsed');
+				$stats['numberOfWars'] = $player->get('numberOfWars');
+				$stats['rankAttacked'] = $player->get('rankAttacked');
+				$stats['rankDefended'] = $player->get('rankDefended');
+
+				$stats['numberOfWars']++;
+				$attack = $attacks[0];
+				if(isset($attack)){
+					$stats['attacksUsed']++;
+					$stats['firstAttackTotalStars'] += $attack['totalStars'];
+					$stats['firstAttackNewStars'] += $attack['newStars'];
+					$stats['rankAttacked'] += $attack['attackerRank'] - $attack['defenderRank'];;
+					$attack = $attacks[1];
+					if(isset($attack)){
+						$stats['attacksUsed']++;
+						$stats['secondAttackTotalStars'] += $attack['totalStars'];
+						$stats['secondAttackNewStars'] += $attack['newStars'];
+						$stats['rankAttacked'] += $attack['attackerRank'] - $attack['defenderRank'];;
+					}
+				}
+				foreach ($defences as $defence) {
+					$stats['numberOfDefences']++;
+					$stats['starsOnDefence'] += $defence['totalStars'];
+					$stats['rankDefended'] += $defence['defenderRank'] - $defence['attackerRank'];
+				}
+				$player->updateBulk($stats);
+			}
+			$this->set('status', $this::COMPLETE);
+		}
+		throw new FunctionCallException('War can only be completed during Battle Day.');
+	}
+
 	public function revokeAllAccess(){
 		global $db;
 		if(isset($this->id)){
@@ -902,55 +946,6 @@ class War{
 			}
 		}
 		return false;
-	}
-
-	private function updateClanWarStats($clan){
-		$wars = $clan->getWars();
-		if(count($wars)>1){
-			$war = $wars[1];
-			$war->getAttacks();
-			$players = $war->getPlayers($clan);
-			foreach ($players as $player) {
-				$attacks = $war->getPlayerAttacks($player);
-				$numOfWars = $player->get('numberOfWars');
-				# These changes are a temporary fix for #62, until I have the time to do #54
-				if(!isset($numOfWars) || $numOfWars == 0){
-					$rankAttacked = $origRankAttacked = 0;
-					$rankDefended = $origRankDefended = 0;
-				}else{
-					$rankAttacked = $origRankAttacked = $player->get('rankAttacked');
-					$rankDefended = $origRankDefended = $player->get('rankDefended');
-				}
-				$player->set('numberOfWars', $numOfWars + 1);
-				$player->set('attacksUsed', $player->get('attacksUsed') + count($attacks));
-				$firstAttack = $attacks[0];
-				if(isset($firstAttack)){
-					$player->set('firstAttackTotalStars', $player->get('firstAttackTotalStars') + $firstAttack['totalStars']);
-					$player->set('firstAttackNewStars', $player->get('firstAttackNewStars') + $firstAttack['newStars']);
-					$rankAttacked += $firstAttack['attackerRank'] - $firstAttack['defenderRank'];
-				}
-				$secondAttack = $attacks[1];
-				if(isset($secondAttack)){
-					$player->set('secondAttackTotalStars', $player->get('secondAttackTotalStars') + $secondAttack['totalStars']);
-					$player->set('secondAttackNewStars', $player->get('secondAttackNewStars') + $secondAttack['newStars']);
-					$rankAttacked += $secondAttack['attackerRank'] - $secondAttack['defenderRank'];
-				}
-				if($rankAttacked != $origRankAttacked){
-					$player->set('rankAttacked', $rankAttacked);
-				}
-				$defences = $war->getPlayerDefences($player->get('id'));
-				$stars = 0;
-				foreach ($defences as $defence) {
-					$stars += $defence['newStars'];
-					$rankDefended += $defence['defenderRank'] - $defence['attackerRank'];
-				}
-				if($rankDefended != $origRankDefended){
-					$player->set('rankDefended', $rankDefended);
-				}
-				$player->set('numberOfDefences', $player->get('numberOfDefences') + count($defences));
-				$player->set('starsOnDefence', $player->get('starsOnDefence') + $stars);
-			}
-		}
 	}
 
 	public function updateFromApi($apiWar){
