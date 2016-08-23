@@ -6,24 +6,35 @@
 		<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
 		<meta name="description" content="">
 		<meta name="author" content="">
-		<link rel="icon" href="images/clash.png">
+                
 		<title>Clash Tracker</title>
+                
+                <link rel="icon" href="images/clash.png">
+                
+		<!-- Bootstrap Core CSS -->
 		<link href="css/bootstrap.css" rel="stylesheet">
-		<link href="css/bootstrap-theme.css" rel="stylesheet" type="text/css">
-		<link href="css/sticky-footer.css" rel="stylesheet" type="text/css">
 		<link href="css/font-awesome.css" rel="stylesheet" type="text/css">
+                
+                
 		<link href="css/custom-font-icons.css" rel="stylesheet" type="text/css">
-		<link href="css/bootstrap-slider.css" rel="stylesheet" type="text/css">
+		<link href="css/bootstrap-theme.css" rel="stylesheet" type="text/css">
+		<link href="css/sticky-footer.css" rel="stylesheet" type="text/css">		
+                <link href="css/bootstrap-slider.css" rel="stylesheet" type="text/css">
 		<link href="css/blog.css" rel="stylesheet" type="text/css">
 		<link href="css/dashboard.css" rel="stylesheet">
 		<link href="css/clashtracker.css" rel="stylesheet" type="text/css">
-		<script src="js/jquery-1.11.3.min.js" type="text/javascript"></script>
-		<script src="js/bootstrap.js" type="text/javascript"></script>
-		<script src="js/Chart.js" type="text/javascript"></script>
-		<script src="js/Chart.Scatter.js" type="text/javascript"></script>
-		<script src="js/bootstrap-slider.js" type="text/javascript"></script>
+                
+                <script src="js/jquery-1.11.3.min.js" type="text/javascript"></script>
+                
+                <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+                <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+                <!--[if lt IE 9]>
+                <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+                <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+                <![endif]-->
+
 	</head>
-	<body role="document" class="application">
+	<body role="document">
 		<nav class="navbar navbar-inverse navbar-fixed-top">
 			<div class="container-fluid">
 				<div class="navbar-header">

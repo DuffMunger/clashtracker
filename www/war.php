@@ -127,7 +127,7 @@ if(isset($clanId)){
 
 require('header.php');
 ?>
-<div class="col-md-12">
+<!--div class="col-md-12"-->
 	<ol class="breadcrumb">
 		<li><a href="/home.php">Home</a></li>
 		<?if(isset($clanId)){?>
@@ -544,26 +544,21 @@ require('header.php');
 		<div id="warAttacks" class="col-md-12 hidden"> <!-- start war events tab -->
                         <div class="panel panel-default"> <!-- start panel -->
                                 <div class="panel-heading"> <!-- start panel heading -->
-                                        <?if($userCanEdit){?>
-                                                <div class="col-xs-12 col-sm-5 left">
-                                        <?}else{?>
-                                                <div class="col-xs-12 col-sm-6 left">
-                                        <?}?>
-                                                        <h3 style="cursor: pointer;" onclick="clickRow('clan.php?clanId=<?=$clan1->get("id");?>');">
+                                        <div class="col-xs-12 col-sm-5 clanName left">
+                                                <h3 style="cursor: pointer;" onclick="clickRow('clan.php?clanId=<?=$clan1->get("id");?>');">
                                                         <?=displayName($clan1->get('name'));?>
-                                                        </h3>
-                                                </div>
-                                        <?if($userCanEdit){?>
-                                                <div class="col-xs-12  col-sm-2 center">Action<br><i class="fa fa-angle-double-down" aria-hidden="true"></i></div>
-                                                <div class="col-xs-12 col-sm-5 right">
-                                        <? }else { ?>
-                                                <div class="col-xs-12 col-sm-6 right">
-                                        <?}?>
-                                                        <h3 style="cursor: pointer;" onclick="clickRow('clan.php?clanId=<?=$clan2->get("id");?>');">
+                                                </h3>
+                                        </div>
+                                        <div class="col-xs-12 col-sm-2 center"><b>VS</b></div>
+                                        <div class="col-xs-12 col-sm-5 clanName right"> 
+                                                <h3 style="cursor: pointer;" onclick="clickRow('clan.php?clanId=<?=$clan2->get("id");?>');">
                                                         <?=displayName($clan2->get('name'));?>
-                                                        </h3>
-                                                </div>
-                                                <div class="clearfix"></div>
+                                                </h3>
+                                        </div>
+                                        <?if($userCanEdit){?>            
+                                                <div class="col-xs-12 center"><i class="fa fa-angle-double-down" aria-hidden="true"></i>Action<i class="fa fa-angle-double-down" aria-hidden="true"></i></div>
+                                        <?}?>        
+                                        <div class="clearfix"></div>
                                 </div> <!-- end panel heading -->
                                 <ul class="list-group"> <!-- start ul -->
                                         <?foreach ($warAttacks as $attack) {
@@ -803,7 +798,6 @@ require('header.php');
 			</div>
 		</div>
 	</div>
-</div>
 <script type="text/javascript">
 function showEditMessageForm(){
 	$('#clanMessageDiv').hide();
