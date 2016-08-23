@@ -127,7 +127,6 @@ if(isset($clanId)){
 
 require('header.php');
 ?>
-<!--div class="col-md-12"-->
 	<ol class="breadcrumb">
 		<li><a href="/home.php">Home</a></li>
 		<?if(isset($clanId)){?>
