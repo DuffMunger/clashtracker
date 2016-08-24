@@ -127,7 +127,7 @@ require('header.php');
 				if(isset($war)){?>
 					<a type="button" class="btn btn-success" href="/war.php?warId=<?=$war->get('id');?>&clanId=<?=$clanId;?>">Current War</a>
 				<?}
-				if(count($wars)>1){?>
+				if(count($wars)>0){?>
 					<a type="button" class="btn btn-success" href="/warStats.php?clanId=<?=$clanId;?>">War Statistics</a>
 				<?}
 				if(count($wars)>1){?>

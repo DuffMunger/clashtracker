@@ -242,12 +242,12 @@ class Player{
 				foreach ($stats as $prpty => $value) {
 					if(in_array($prpty, $this->acceptSet)){
 						$prpty = array_search($prpty, $this->acceptSet);
-						$query .= $prpty . ' = ' . $db->escape_string($value) . ', ';
+						$query .= $prpty . ' = "' . $db->escape_string($value) . '", ';
 						continue;
 					}
 					throw new OperationException('Property is not in accept set.');
 				}
-				$query = trim($query, ', ');
+				$query .= ' date_modified = "' . $db->escape_string(date('Y-m-d H:i:s', time())) . '"';
 				$query .= ' WHERE id = ' . $db->escape_string($this->id) . ';';
 				error_log($query);
 				if(($db->multi_query($query)) === TRUE){

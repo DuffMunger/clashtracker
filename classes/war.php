@@ -195,6 +195,7 @@ class War{
 					}else{
 						$this->$prpty = $value;
 					}
+					return true;
 				}else{
 					throw new SQLQueryException('The database encountered an error. ' . $db->error);
 				}
@@ -265,7 +266,7 @@ class War{
 					throw new SQLQueryException('The database encountered an error. ' . $db->error);
 				}
 			}else{
-				throw new WarPlayerException('Cannot remove player from war. Player not in war.');
+				throw new WarPlayerException("Cannot remove player from war. Player not in war. ($playerId)");
 			}
 		}else{
 			throw new FunctionCallException('ID not set to remove players.');
@@ -485,7 +486,7 @@ public function getPlayerAttacks($player){
 		if(isset($this->id)){
 			$playerId = $player->get('id');
 			if(!$this->isPlayerInWar($playerId)){
-				throw new WarPlayerException('Player not in war.');
+				throw new WarPlayerException("Player not in war. ($playerId)");
 			}
 			if(!isset($this->playerAttacks)){
 				$this->getAttacks();
@@ -498,8 +499,15 @@ public function getPlayerAttacks($player){
 
 	public function getPlayerDefences($playerId){
 		if(isset($this->id)){
+			if(!is_numeric($playerId)){
+				try{
+					$playerId = $playerId->get('id');
+				}catch(Exeption $e){
+					throw new ArgumentException('Invalid player ID.');
+				}
+			}
 			if(!$this->isPlayerInWar($playerId)){
-				throw new WarPlayerException('Player not in war.');
+				throw new WarPlayerException("Player not in war. ($playerId)");
 			}
 			if(!isset($this->playerDefences)){
 				$this->getAttacks();
@@ -591,7 +599,7 @@ public function getPlayerAttacks($player){
 				throw new SQLQueryException('The database encountered an error. ' . $db->error);
 			}
 		}else{
-			throw new WarPlayerException('Player not in war.');
+			throw new WarPlayerException("Player not in war. ($playerId)");
 		}
 	}
 
@@ -687,7 +695,7 @@ public function getPlayerAttacks($player){
 					throw new SQLQueryException('The database encountered an error. ' . $db->error);
 				}
 			}else{
-				throw new WarPlayerException('Player not in war.');
+				throw new WarPlayerException("Player not in war. ($playerId)");
 			}
 		}else{
 			throw new FunctionCallException('ID not set for war ranks.');
@@ -756,44 +764,56 @@ public function getPlayerAttacks($player){
 		if($this->isBattleDay()){
 			global $db;
 			$players = $this->getPlayers();
-			foreach ($players as $player) {
-				$attacks = $this->getPlayerAttacks($player);
-				$defences = $this->getPlayerDefences($player);
-				$stats = array();
-				$stats['firstAttackTotalStars'] = $player->get('firstAttackTotalStars');
-				$stats['firstAttackNewStars'] = $player->get('firstAttackNewStars');
-				$stats['secondAttackTotalStars'] = $player->get('secondAttackTotalStars');
-				$stats['secondAttackNewStars'] = $player->get('secondAttackNewStars');
-				$stats['starsOnDefence'] = $player->get('starsOnDefence');
-				$stats['numberOfDefences'] = $player->get('numberOfDefences');
-				$stats['attacksUsed'] = $player->get('attacksUsed');
-				$stats['numberOfWars'] = $player->get('numberOfWars');
-				$stats['rankAttacked'] = $player->get('rankAttacked');
-				$stats['rankDefended'] = $player->get('rankDefended');
+			$updatedPlayers = array();
+			$revertToValues = array();
+			try{
+				foreach ($players as $player) {
+					$attacks = $this->getPlayerAttacks($player);
+					$defences = $this->getPlayerDefences($player);
+					$stats = array();
+					$stats['firstAttackTotalStars'] = $player->get('firstAttackTotalStars');
+					$stats['firstAttackNewStars'] = $player->get('firstAttackNewStars');
+					$stats['secondAttackTotalStars'] = $player->get('secondAttackTotalStars');
+					$stats['secondAttackNewStars'] = $player->get('secondAttackNewStars');
+					$stats['starsOnDefence'] = $player->get('starsOnDefence');
+					$stats['numberOfDefences'] = $player->get('numberOfDefences');
+					$stats['attacksUsed'] = $player->get('attacksUsed');
+					$stats['numberOfWars'] = $player->get('numberOfWars');
+					$stats['rankAttacked'] = $player->get('rankAttacked');
+					$stats['rankDefended'] = $player->get('rankDefended');
+					$revertToValues[$player->get('id')] = $stats;
+					$updatedPlayers[$player->get('id')] = $player;
 
-				$stats['numberOfWars']++;
-				$attack = $attacks[0];
-				if(isset($attack)){
-					$stats['attacksUsed']++;
-					$stats['firstAttackTotalStars'] += $attack['totalStars'];
-					$stats['firstAttackNewStars'] += $attack['newStars'];
-					$stats['rankAttacked'] += $attack['attackerRank'] - $attack['defenderRank'];;
-					$attack = $attacks[1];
+					$stats['numberOfWars']++;
+					$attack = $attacks[0];
 					if(isset($attack)){
 						$stats['attacksUsed']++;
-						$stats['secondAttackTotalStars'] += $attack['totalStars'];
-						$stats['secondAttackNewStars'] += $attack['newStars'];
+						$stats['firstAttackTotalStars'] += $attack['totalStars'];
+						$stats['firstAttackNewStars'] += $attack['newStars'];
 						$stats['rankAttacked'] += $attack['attackerRank'] - $attack['defenderRank'];;
+						$attack = $attacks[1];
+						if(isset($attack)){
+							$stats['attacksUsed']++;
+							$stats['secondAttackTotalStars'] += $attack['totalStars'];
+							$stats['secondAttackNewStars'] += $attack['newStars'];
+							$stats['rankAttacked'] += $attack['attackerRank'] - $attack['defenderRank'];;
+						}
 					}
+					foreach ($defences as $defence) {
+						$stats['numberOfDefences']++;
+						$stats['starsOnDefence'] += $defence['totalStars'];
+						$stats['rankDefended'] += $defence['defenderRank'] - $defence['attackerRank'];
+					}
+					$player->updateBulk($stats);
 				}
-				foreach ($defences as $defence) {
-					$stats['numberOfDefences']++;
-					$stats['starsOnDefence'] += $defence['totalStars'];
-					$stats['rankDefended'] += $defence['defenderRank'] - $defence['attackerRank'];
+				return $this->set('status', $this::COMPLETE);
+			}catch(Exeption $e){
+				foreach ($revertToValues as $playerId => $stats) {
+					$player = $updatedPlayers[$playerId];
+					$player->updateBulk($stats);
 				}
-				$player->updateBulk($stats);
+				throw new Exception('There was an error trying to complete the war. Please try again.');
 			}
-			$this->set('status', $this::COMPLETE);
 		}
 		throw new FunctionCallException('War can only be completed during Battle Day.');
 	}
