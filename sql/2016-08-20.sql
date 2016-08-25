@@ -38,6 +38,15 @@ begin
 end //
 delimiter ;
 
+drop procedure if exists p_war_get_assignments;
+delimiter //
+create procedure p_war_get_assignments(varWarId int)
+begin
+    -- Only select assignments when the war is in preparation day
+    select * from war_assignment where war_id = varWarId and status = 0;
+end //
+delimiter ;
+
 alter table war add status int default 0;
 
 drop procedure if exists p_player_update_bulk;

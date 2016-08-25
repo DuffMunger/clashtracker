@@ -1022,7 +1022,49 @@ public function getPlayerAttacks($player){
 				}
 			}
 		}else{
-			throw FunctionCallException('ID not set for delete.');
+			throw new FunctionCallException('ID not set for delete.');
 		}
+	}
+
+	public function getAssignments($playerId=null){
+		if(!isset($this->id)){
+			throw new FunctionCallException('ID not set for get.');
+		}
+		if(!$this->isPreparationDay()){
+			throw new FunctionCallException('War is not in preparation day.');
+		}
+		if(isset($this->warAssignments)){
+			if(isset($playerId)){
+				return $this->playerWarAssignments[$playerId];
+			}
+			return $this->warAssignments;
+		}
+		global $db;
+		$procedure = buildProcedure('p_war_get_assignments', $this->id);
+		if(($db->multi_query($procedure)) !== TRUE){
+			throw new SQLQueryException('The database encountered an error. ' . $db->error);
+		}
+		$results = $db->store_result();
+		while ($db->more_results()){
+			$db->next_result();
+		}
+		$this->warAssignments = array();
+		$this->playerWarAssignments = array();
+		if (!$results->num_rows) {
+			return array();
+		}
+		while ($warAssignmentObj = $results->fetch_object()) {
+			$warAssignment = new WarAssignment($warAssignmentObj);
+			$this->warAssignments[] = $warAssignment;
+			$currPlayerId = $warAssignment->get('playerId');
+			if(!isset($this->playerWarAssignments[$currPlayerId])){
+				$this->playerWarAssignments[$currPlayerId] = array();
+			}
+			$this->playerWarAssignments[$currPlayerId] = $warAssignment;
+		}
+		if(isset($playerId)){
+			return $this->playerWarAssignments[$playerId];
+		}
+		return $this->warAssignments;
 	}
 }

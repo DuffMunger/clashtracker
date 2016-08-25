@@ -25,6 +25,9 @@ class WarAssignment{
 		if(isset($this->warId)){
 			throw new FunctionCallException('ID set, cannot create.');
 		}
+		if(!$war->isPreparation()){
+			throw new ArgumentException('War must be in Preparation day to add war assignments.');
+		}
 		$warId = $war->get('id');
 		$playerId = $player->get('id');
 		$assignedPlayerId = $assignedPlayer->get('id');
@@ -120,7 +123,7 @@ class WarAssignment{
 			throw new FunctionCallException('ID not set for delete.');
 		}
 		$procedure = buildProcedure('p_war_assignment_delete', $this->warId, $this->playerId, $this->assignedPlayedId);
-		if(($db->multi_query($procedure)) === TRUE){
+		if(($db->multi_query($procedure)) !== TRUE){
 			throw new SQLQueryException('The database encountered an error. ' . $db->error);
 		}
 		while ($db->more_results()){
