@@ -1026,12 +1026,18 @@ public function getPlayerAttacks($player){
 		}
 	}
 
+	public function addAssignment($attacker, $defender, $message=''){
+		if(isset($this->id)){
+			$assignment = new WarAssignment();
+			$assignment->create($this, $attacker, $defender, $message);
+			return $assignment;
+		}
+		throw new FunctionCallException('ID not set to create war assignments.');
+	}
+
 	public function getAssignments($playerId=null){
 		if(!isset($this->id)){
 			throw new FunctionCallException('ID not set for get.');
-		}
-		if(!$this->isPreparationDay()){
-			throw new FunctionCallException('War is not in preparation day.');
 		}
 		if(isset($this->warAssignments)){
 			if(isset($playerId)){
@@ -1060,7 +1066,7 @@ public function getPlayerAttacks($player){
 			if(!isset($this->playerWarAssignments[$currPlayerId])){
 				$this->playerWarAssignments[$currPlayerId] = array();
 			}
-			$this->playerWarAssignments[$currPlayerId] = $warAssignment;
+			$this->playerWarAssignments[$currPlayerId][] = $warAssignment;
 		}
 		if(isset($playerId)){
 			return $this->playerWarAssignments[$playerId];

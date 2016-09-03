@@ -335,9 +335,10 @@ require('header.php');
 							<tbody>
 								<?foreach ($clan1Players as $player) {
 									$playerAttacks = getPlayerAttacks($player->get('id'));
-									$firstAttack = $playerAttacks[0];
-									$secondAttack = $playerAttacks[1];
+									$playerAttacks[-1] = -1;
 									$playerDefences = getPlayerAttacks($player->get('id'), 'defence');
+									$playerAssignments = $war->getAssignments($player->get('id'));
+									$playerAssignments[-1] = -1;
 									$starsAgainst = -1;
 									$rank = $war->getPlayerRank($player->get('id'));
 									foreach ($playerDefences as $defence) {
@@ -364,40 +365,23 @@ require('header.php');
 											</td>
 										<?}?>
 										<td class="rank-<?=$player->get('id');?>" style="cursor: pointer;" onclick="clickRow('player.php?playerId=<?=$player->get("id");?>');"><?=$rank . '.&nbsp;' . displayName($player->get('name'));?></td>
-										<td>
-											<?if(isset($firstAttack)){
-												for($i=$firstAttack['totalStars']-$firstAttack['newStars'];$i>0;$i--){?>
-													<i class="fa fa-star" style="color: silver;"></i>
-												<?}
-												for($i=$firstAttack['newStars'];$i>0;$i--){?>
-													<i class="fa fa-star" style="color: gold;"></i>
-												<?}
-												for($i=$firstAttack['totalStars'];$i<3;$i++){?>
-													<i class="fa fa-star-o" style="color: silver;"></i>
-												<?}
-											}else{
-												if(count($clan2Players) > 0 && $battleDay){?>
+										<?foreach (array(0,1) as $index) {
+											$prevAttack = $playerAttacks[$index - 1];
+											$attack = $playerAttacks[$index];
+											$prevAssignment = $playerAssignments[$index - 1];
+											$assignment = (isset($prevAttack) && $prevAttack != -1) ? $prevAssignment : $playerAssignments[$index];?>
+											<td>
+												<?if(isset($attack)){
+													include('displayAttack.php');
+												}elseif(isset($assignment)){
+													include('displayAssignment.php');
+												}elseif($preparationDay && isset($prevAssignment) && count($clan2Players) > 0){?>
+													<a type="button" class="btn btn-xs btn-info" href="/addWarAssignment.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?><?=$clanIdText;?>">Assign</a>
+												<?}elseif($battleDay && isset($prevAttack)){?>
 													<a type="button" class="btn btn-xs btn-success" href="/addWarAttack.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?><?=$clanIdText;?>">Add Attack</a>
-												<?}
-											}?>
-										</td>
-										<td>
-											<?if(isset($secondAttack)){
-												for($i=$secondAttack['totalStars']-$secondAttack['newStars'];$i>0;$i--){?>
-													<i class="fa fa-star" style="color: silver;"></i>
-												<?}
-												for($i=$secondAttack['newStars'];$i>0;$i--){?>
-													<i class="fa fa-star" style="color: gold;"></i>
-												<?}
-												for($i=$secondAttack['totalStars'];$i<3;$i++){?>
-													<i class="fa fa-star-o" style="color: silver;"></i>
-												<?}
-											}elseif(isset($firstAttack)){
-												if(count($clan2Players) > 0 && $battleDay){?>
-													<a type="button" class="btn btn-xs btn-success" href="/addWarAttack.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?><?=$clanIdText;?>">Add Attack</a>
-												<?}
-											}?>
-										</td>
+												<?}?>
+											</td>
+										<?}?>
 										<td>
 											<?if($starsAgainst==3){?>
 												<i class="fa fa-star" style="color: gold;"></i> <i class="fa fa-star" style="color: gold;"></i> <i class="fa fa-star" style="color: gold;"></i>

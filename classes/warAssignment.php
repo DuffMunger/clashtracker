@@ -9,7 +9,7 @@ class WarAssignment{
 
 	private $acceptGet = array(
 		'war_id' => 'warId',
-		'player_id' => 'player_id',
+		'player_id' => 'playerId',
 		'assigned_player_id' => 'assignedPlayerId',
 		'message' => 'message',
 		'date_created' => 'dateCreated',
@@ -25,7 +25,7 @@ class WarAssignment{
 		if(isset($this->warId)){
 			throw new FunctionCallException('ID set, cannot create.');
 		}
-		if(!$war->isPreparation()){
+		if(!$war->isPreparationDay()){
 			throw new ArgumentException('War must be in Preparation day to add war assignments.');
 		}
 		$warId = $war->get('id');
@@ -66,7 +66,7 @@ class WarAssignment{
 			throw new FunctionCallException('ID not set for get.');
 		}
 		if(in_array($prpty, $this->acceptGet)){
-			return $this->prpty;
+			return $this->$prpty;
 		}elseif($prpty == 'war'){
 			return $this->getWar();
 		}elseif($prpty == 'player'){

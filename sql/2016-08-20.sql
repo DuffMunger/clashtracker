@@ -1,3 +1,4 @@
+drop table if exists war_assignment;
 create table war_assignment(
 	war_id int not null,
 	player_id int not null,
@@ -14,9 +15,9 @@ drop procedure if exists p_war_assignment_create;
 delimiter //
 create procedure p_war_assignment_create(varWarId int, varPlayerId int, varAssignedPlayerId int, varMessage varchar(1023), varDate datetime)
 begin
-    insert into war_assignment values(varWarId, varPlayerId, varAssignedPlayerId, varMessage, varDate);
+    insert into war_assignment values(varWarId, varPlayerId, varAssignedPlayerId, varMessage, varDate, null);
     update war set date_modified = varDate where id = varWarId;
-    select * from war_assignment where war_id = varWarId, player_id = varPlayerId, assigned_player_id = varAssignedPlayerId;
+    select * from war_assignment where war_id = varWarId and player_id = varPlayerId and assigned_player_id = varAssignedPlayerId;
 end //
 delimiter ;
 
@@ -42,8 +43,7 @@ drop procedure if exists p_war_get_assignments;
 delimiter //
 create procedure p_war_get_assignments(varWarId int)
 begin
-    -- Only select assignments when the war is in preparation day
-    select * from war_assignment where war_id = varWarId and status = 0;
+    select * from war_assignment where war_id = varWarId;
 end //
 delimiter ;
 

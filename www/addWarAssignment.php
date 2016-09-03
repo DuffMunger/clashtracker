@@ -17,32 +17,24 @@ if($war->isClanInWar($clanId)){
 	$clan1 = new clan($clanId);
 	$clanId = $clan1->get('id');
 	$clan2 = $war->getEnemy($clanId);
+	$clanIdText = "&clanId=$clanId";
 }else{
 	$clanId = null;
 	$clan1 = $war->get('clan1');
 	$clan2 = $war->get('clan2');
+	$clanIdText = '';
 }
 
-if(!$war->isBattleDay()){
-	$_SESSION['curError'] = 'Adding war attacks is only available during battle day.';
-	if(isset($clanId)){
-		header('Location: /war.php?warId=' . $war->get('id') . '&clanId=' . $clanId);
-		exit;
-	}else{
-		header('Location: /war.php?warId=' . $war->get('id'));
-		exit;
-	}
+if(!$war->isPreparationDay()){
+	$_SESSION['curError'] = 'Adding war assignments is only available during preparation day.';
+	header('Location: /war.php?warId=' . $war->get('id') . $clanIdText);
+	exit;
 }
 
 if(!userHasAccessToUpdateWar($war)){
 	$_SESSION['curError'] = NO_ACCESS;
-	if(isset($clanId)){
-		header('Location: /war.php?warId=' . $war->get('id') . '&clanId=' . $clanId);
-		exit;
-	}else{
-		header('Location: /war.php?warId=' . $war->get('id'));
-		exit;
-	}
+	header('Location: /war.php?warId=' . $war->get('id') . $clanIdText);
+	exit;
 }
 
 $attackerId = $_GET['playerId'];
@@ -51,11 +43,7 @@ try{
 	$attackerId = $attacker->get('id');
 }catch(Exception $e){
 	$_SESSION['curError'] = 'No player with id ' . $attackerId . ' found.';
-	if(isset($clanId)){
-		header('Location: /war.php?warId=' . $war->get('id') . '&clanId=' . $clanId);
-	}else{
-		header('Location: /war.php?warId=' . $war->get('id'));
-	}
+	header('Location: /war.php?warId=' . $war->get('id') . $clanIdText);
 	exit;
 }
 
@@ -63,40 +51,28 @@ try{
 	$attackerClan = $war->getPlayerWarClan($attacker->get('id'));
 }catch(WarPlayerException $e){
 	$_SESSION['curError'] = 'Player not in war.';
-	if(isset($clanId)){
-		header('Location: /war.php?warId=' . $war->get('id') . '&clanId=' . $clanId);
-	}else{
-		header('Location: /war.php?warId=' . $war->get('id'));
-	}
+	header('Location: /war.php?warId=' . $war->get('id') . $clanIdText);
 	exit;
 }
 
 $defenderClan = $war->getEnemy($attackerClan->get('id'));
 $defenders = $war->getPlayers($defenderClan);
 if(count($defenders) == 0){
-	$_SESSION['curError'] = 'No members in opposite clan to attack.';
-	if(isset($clanId)){
-		header('Location: /war.php?warId=' . $war->get('id') . '&clanId=' . $clanId);
-	}else{
-		header('Location: /war.php?warId=' . $war->get('id'));
-	}
+	$_SESSION['curError'] = 'No members in opposite clan to be assigned.';
+	header('Location: /war.php?warId=' . $war->get('id') . $clanIdText);
 	exit;
 }
 
-$attackerAttacks = $war->getPlayerAttacks($attacker);
-if(count($attackerAttacks) >= 2){
-	$_SESSION['curError'] = 'Attacker has already used both attacks.';
-	if(isset($clanId)){
-		header('Location: /war.php?warId=' . $war->get('id') . '&clanId=' . $clanId);
-	}else{
-		header('Location: /war.php?warId=' . $war->get('id'));
-	}
+$attackerAssignments = $war->getAssignments($attacker->get('id'));
+if(count($attackerAssignments) >= 2){
+	$_SESSION['curError'] = 'Attacker has already been assigned 2 attacks.';
+	header('Location: /war.php?warId=' . $war->get('id') . $clanIdText);
 	exit;
 }
 
-if(isset($attackerAttacks[0])){
+if(isset($attackerAssignments[0])){
 	foreach ($defenders as $rank => $defender) {
-		if($attackerAttacks[0]['defenderId'] == $defender->get('id')){
+		if($attackerAssignments[0]->get('assignedPlayerId') == $defender->get('id')){
 			unset($defenders[$rank]);
 		}
 	}
@@ -115,12 +91,12 @@ require('header.php');
 			<li><a href="/wars.php">Wars</a></li>
 			<li><a href="/war.php?warId=<?=$war->get('id');?>"><?=htmlspecialchars($clan1->get('name'));?> vs. <?=htmlspecialchars($clan2->get('name'));?></a></li>
 		<?}?>
-		<li class="active">Add War Attack</li>
+		<li class="active">Assign War Attack</li>
 	</ol>
 	<?require('showMessages.php');?>
-	<h1>Add War Attack</h1><br>
+	<h1>Assign War Attack</h1><br>
 	<div class="">
-		<form class="form-horizontal" action="/processAddWarAttack.php" method="POST">
+		<form class="form-horizontal" action="/processAddWarAssignment.php" method="POST">
 			<input hidden name="warId" value="<?=$war->get('id');?>">
 			<input hidden name="playerId" value="<?=$attacker->get('id');?>">
 			<?if(isset($clanId)){?>
@@ -146,17 +122,6 @@ require('header.php');
 					</table>
 				</div>
 				<div class="col-md-6">
-					<div class="form-group">
-						<label class="col-sm-4 control-lable text-right" for="stars">Stars:</label>
-						<div class="col-sm-8">
-							<?for ($i=0; $i <= 3; $i++){?>
-								<div class="col-sm-3">
-									<input id="<?=$i;?>stars" onclick="selectStars(<?=$i;?>);" name="stars" value="<?=$i;?>" class="stars" type="checkbox">
-									&nbsp;<?=$i;?>&nbsp;<i class="fa fa-star"></i>
-								</div>
-							<?}?>
-						</div>
-					</div>
 					<div class="row">
 						<div class="col-sm-12 text-right btn-actions">
 							<br>
@@ -180,12 +145,6 @@ function selectMember(id){
 	}else{
 		defender.prop('checked', true);
 	}
-}
-function selectStars(stars){
-	$(".stars").each(function(){
-		$(this).attr('checked', false);
-	});
-	$('#' + stars + 'stars').prop('checked', true);
 }
 </script>
 <?
