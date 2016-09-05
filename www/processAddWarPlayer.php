@@ -27,30 +27,22 @@ if($war->isClanInWar($clanId)){
 		$clan = $war->get('clan2');
 	}
 	$clanId = $clan->get('id');
+	$clanIdText = "&clanId=$clanId";
 }else{
 	$clanId = null;
+	$clanIdText = '';
 }
 
 if(!$war->isEditable()){
 	$_SESSION['curError'] = 'This war is no longer editable.';
-	if(isset($clanId)){
-		header('Location: /war.php?warId=' . $war->get('id') . '&clanId=' . $clanId);
-		exit;
-	}else{
-		header('Location: /war.php?warId=' . $war->get('id'));
-		exit;
-	}
+	header('Location: /war.php?warId=' . $war->get('id') . $clanIdText);
+	exit;
 }
 
 if(!userHasAccessToUpdateWar($war)){
 	$_SESSION['curError'] = NO_ACCESS;
-	if(isset($clanId)){
-		header('Location: /war.php?warId=' . $war->get('id') . '&clanId=' . $clanId);
-		exit;
-	}else{
-		header('Location: /war.php?warId=' . $war->get('id'));
-		exit;
-	}
+	header('Location: /war.php?warId=' . $war->get('id') . $clanIdText);
+	exit;
 }
 
 $addClanId = $_POST['addClanId'];
@@ -70,11 +62,7 @@ if($war->isClanInWar($addClanId)){
 
 if($_POST['cancel']){
 	unsetAll();
-	if(isset($clanId)){
-		header('Location: /war.php?warId=' . $war->get('id') . '&clanId=' . $clan->get('id'));
-	}else{
-		header('Location: /war.php?warId=' . $war->get('id'));
-	}
+	header('Location: /war.php?warId=' . $war->get('id') . $clanIdText);
 	exit;
 }
 
@@ -97,11 +85,7 @@ $_SESSION['playerTag'] = $playerTag;
 if(strlen($playerTag) != 0 || strlen($playerName) != 0){
 	if(strlen($playerTag) == 0){
 		$_SESSION['curError'] = 'Player Tag cannot be blank.';
-		if(isset($clanId)){
-			header('Location: /addWarPlayer.php?warId=' . $war->get('id') . '&addClanId=' . $addClan->get('id') . '&clanId=' . $clan->get('id'));
-		}else{
-			header('Location: /addWarPlayer.php?warId=' . $war->get('id') . '&addClanId=' . $addClan->get('id'));
-		}
+		header('Location: /addWarPlayer.php?warId=' . $war->get('id') . '&addClanId=' . $addClan->get('id') . $clanIdText);
 		exit;
 	}
 
@@ -111,11 +95,7 @@ if(strlen($playerTag) != 0 || strlen($playerName) != 0){
 		$player = new Player();
 		if(strlen($playerName) == 0){
 			$_SESSION['curError'] = 'Player Name cannot be blank.';
-			if(isset($clanId)){
-				header('Location: /addWarPlayer.php?warId=' . $war->get('id') . '&addClanId=' . $addClan->get('id') . '&clanId=' . $clan->get('id'));
-			}else{
-				header('Location: /addWarPlayer.php?warId=' . $war->get('id') . '&addClanId=' . $addClan->get('id'));
-			}
+			header('Location: /addWarPlayer.php?warId=' . $war->get('id') . '&addClanId=' . $addClan->get('id') . $clanIdText);
 			exit;
 		}
 		$player->create($playerName, $playerTag);
@@ -123,18 +103,26 @@ if(strlen($playerTag) != 0 || strlen($playerName) != 0){
 
 	$playerId = $player->get('id');
 	if(!$war->isPlayerInWar($playerId)){
-		if(!$addClan->isPlayerInClan($playerId)){
+		$switchClans = false;
+		$leaveClan = false;
+		$playerClan = $player->get('clan');
+		$issetPlayerClan = isset($playerClan);
+		if(!$issetPlayerClan || $playerClan->get('id') != $addClan->get('id')){
 			$addClan->addPlayer($player);
+			$switchClans = $issetPlayerClan;
+			$leaveClan = true;
 		}
 		$war->addPlayer($playerId);
+		if($leaveClan){
+			$player->leaveClan();
+			if($switchClans){
+				$playerClan->addPlayer($player);
+			}
+		}
 		$_SESSION['curMessage'] .= 'Other player successfully added to war.';
 	}
 }
 
 unsetAll();
-if(isset($clanId)){
-	header('Location: /war.php?warId=' . $war->get('id') . '&clanId=' . $clan->get('id'));
-}else{
-	header('Location: /war.php?warId=' . $war->get('id'));
-}
+header('Location: /war.php?warId=' . $war->get('id') . $clanIdText);
 exit;
