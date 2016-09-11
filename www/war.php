@@ -373,9 +373,9 @@ require('header.php');
 											<td>
 												<?if(isset($attack)){
 													include('displayAttack.php');
-												}elseif(isset($assignment)){
-													include('displayAssignment.php');
-												}elseif($preparationDay && isset($prevAssignment) && count($clan2Players) > 0){?>
+												}elseif(isset($assignment)){?>
+													<a type="button" class="btn btn-xs btn-info" href="/warAssignment.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?>&assignedPlayerId=<?=$assignment->get('assignedPlayerId');?><?=$clanIdText;?>">View Assignment</a>
+												<?}elseif($preparationDay && isset($prevAssignment) && count($clan2Players) > 0){?>
 													<a type="button" class="btn btn-xs btn-info" href="/addWarAssignment.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?><?=$clanIdText;?>">Assign</a>
 												<?}elseif($battleDay && isset($prevAttack)){?>
 													<a type="button" class="btn btn-xs btn-success" href="/addWarAttack.php?warId=<?=$war->get('id');?>&playerId=<?=$player->get('id');?><?=$clanIdText;?>">Add Attack</a>
