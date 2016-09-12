@@ -31,7 +31,7 @@ Go to <a href="https://developer.clashofclans.com">Clash of Clan's developer web
 Once you've created the API key, copy it and the IP addresses and go to the `/dev.php` page. Under the API Keys section, add the IPs and their associated API keys. You can add multiple IP addresses to the same API Key by putting all IP addresses divided by spaces in the IPs input.
 
 ## Setting up Proxy Information
-On the `/dev.php` page, add the different static IP add-ons that you're using. For each one you've added, you'll need the config variable name, the monthly limit and one of the IP addresses for that add-on. Here are montly limits for the base plans of the add-ons mentioned above:
+On the `/dev.php` page, add the different static IP add-ons that you're using. For each one you've added, you'll need the config variable name, the monthly limit and one of the IP addresses for that add-on. Here are the monthly limits for the base plans of the add-ons mentioned above:
 
 Add-on | Config Var Name | Monthly Limit of Base Plan
 ------------ | ------------ | -------------
