@@ -166,24 +166,22 @@ require('header.php');
 							</tbody>
 						</table>
 					</div>
-				<?}
-				if(count($allMembers)<50){?>
-					<div class="col-md-6">
-						<h4>Add Other Player:</h4><br>
-						<div class="form-group">
-							<label class="col-sm-4 control-lable" for="name">Player Name:</label>
-							<div class="col-sm-8">
-								<input type="text" class="form-control" id="name" name="name" placeholder="Angry Neeson 52" value="<?=$_SESSION['name'];?>">
-							</div>
-						</div>
-						<div class="form-group">
-							<label class="col-sm-4 control-lable" for="playerTag">Player Tag:</label>
-							<div class="col-sm-8">
-								<input type="text" class="form-control" id="playerTag" name="playerTag" placeholder="#JKFH83J" value="<?=$_SESSION['playerTag'];?>">
-							</div>
+				<?}?>
+				<div class="col-md-6">
+					<h4>Add Other Player:</h4><br>
+					<div class="form-group">
+						<label class="col-sm-4 control-lable" for="name">Player Name:</label>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" id="name" name="name" placeholder="Angry Neeson 52" value="<?=$_SESSION['name'];?>">
 						</div>
 					</div>
-				<?}?>
+					<div class="form-group">
+						<label class="col-sm-4 control-lable" for="playerTag">Player Tag:</label>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" id="playerTag" name="playerTag" placeholder="#JKFH83J" value="<?=$_SESSION['playerTag'];?>">
+						</div>
+					</div>
+				</div>
 			</div>
 			<div class="row">
 				<div class="col-sm-12 text-right btn-actions">

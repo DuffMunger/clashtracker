@@ -517,10 +517,12 @@ class Clan{
 		}
 	}
 
-	public function isPlayerInClan($playerId){
+	public function isPlayerInClan($player){
 		try{
-			$player = new player($playerId);
-			$playerId = $player->get('id');
+			if(is_numeric($player)){
+				$player = new player($player);
+			}
+			$player->get('id');
 		}catch(Exception $e){
 			return false;
 		}
