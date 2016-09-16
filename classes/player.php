@@ -1036,8 +1036,8 @@ class Player{
 		$this->score -= $defencePenalty; // applying penalty to score
 
 		$this->score -= ((2 - $au) * 2) * $auw; // penalty for players who don't use attacks
-		$this->score *= min(1, $this->numberOfWars/4); // reduction in score for new players (this is here to reduce new players from getting a perfect war right away and jumping to the top of the clan's war stats)
-		$this->score *= (100-$wslp)/100; // small penalty for players not participating in wars (this is here to reduce players getting a high score and then 'retiring' at the top of the clan's war stats; they have to keep fighting to stay at the top)
+		$this->score *= min(1, ($this->numberOfWars+6)/10); // reduction in score for new players (this is here to reduce new players from getting a perfect war right away and jumping to the top of the clan's war stats)
+		$this->score *= max((100-$wslp)/100, 0.5); // small penalty for players not participating in wars (this is here to reduce players getting a high score and then 'retiring' at the top of the clan's war stats; they have to keep fighting to stay at the top)
 		return $this->score;
 	}
 
