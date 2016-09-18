@@ -59,11 +59,8 @@ $otherPlayer = $war->getPlayerByRank($newWarRank, $clan->get('id'));
 $war->updatePlayerRank($otherPlayer->get('id'), $warRank);
 $war->updatePlayerRank($player->get('id'), $newWarRank);
 
-$clanRank = $player->get('warRank', $clan->get('id'));
 $newClanRank = $otherPlayer->get('warRank', $clan->get('id'));
-
 $clan->updatePlayerWarRank($player->get('id'), $newClanRank);
-$clan->updatePlayerWarRank($otherPlayer->get('id'), $clanRank);
 
 echo json_encode(array(
 	'message' => 'War rank successfully changed.', 

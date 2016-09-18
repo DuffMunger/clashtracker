@@ -363,8 +363,7 @@ class Clan{
 				if($isNewMember){
 					$this->pastAndCurrentMembers[] = $player;
 					$this->currentMembers[] = $player;
-					$this->highestWarRank = $this->getHighestWarRank() + 1;
-					$this->updatePlayerWarRank($playerId, $this->highestWarRank);
+					$this->addPlayerWarRank($player);
 				}
 			}else{
 				throw new SQLQueryException('The database encountered an error. ' . $db->error);
@@ -372,6 +371,19 @@ class Clan{
 		}else{
 			throw new FunctionCallException('ID not set for add.');
 		}
+	}
+
+	private function addPlayerWarRank($player){
+		$members = $this->getMembers(false, 'war_rank_desc');
+		$level = $player->get('level');
+		foreach ($members as $member) {
+			if($member->get('level') >= $level){
+				$warRank = $member->get('warRank') + 1;
+				$this->updatePlayerWarRank($player->get('id'), $warRank);
+				return;
+			}
+		}
+		$this->updatePlayerWarRank($player->get('id'), 1);
 	}
 
 	public function getMembers($force=false, $sort=null){
@@ -382,11 +394,13 @@ class Clan{
 				'trophies_desc' => 'trophies desc',
 				'donations_desc' => 'donations desc',
 				'received_desc' => 'received desc',
+				'war_rank_desc' => 'war_rank desc',
 				'rank_desc' => 'rank desc',
 				'name' => 'name',
 				'trophies' => 'trophies',
 				'donations' => 'donations',
 				'received' => 'received',
+				'war_rank' => 'war_rank',
 				'rank' => 'rank');
 			$sort = $sorts[$sort];
 		}
@@ -394,7 +408,7 @@ class Clan{
 			$sort = 'trophies desc';
 		}
 		if(isset($this->id)){
-			if(isset($this->currentMembers) && !$force){
+			if(isset($this->currentMembers) && !$force && $sort == $this->currentMemberSort){
 				return $this->currentMembers;
 			}
 			$procedure = buildProcedure('p_clan_get_current_members', $this->id, $sort);
@@ -411,6 +425,7 @@ class Clan{
 						$this->currentMembers[$member->get('id')] = $member;
 					}
 				}
+				$this->currentMemberSort = $sort;
 				return $this->currentMembers;
 			}else{
 				throw new SQLQueryException('The database encountered an error. ' . $db->error);

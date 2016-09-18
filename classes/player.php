@@ -188,6 +188,7 @@ class Player{
 		$this->clan = $clan;
 		if(isset($clan)){
 			$this->clanRank = $playerObj->rank;
+			$this->warRank = $playerObj->war_rank;
 		}
 	}
 
