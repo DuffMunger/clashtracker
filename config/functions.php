@@ -107,7 +107,7 @@ function sortPlayersByWarScore($players){
 		}
 	}
 	foreach ($players as $key => $player) {
-		if($player->get('numberOfWars') == 0){
+		if($player->get('numberOfWars') < 2){
 			unset($players[$key]);
 		}
 	}

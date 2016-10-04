@@ -187,7 +187,7 @@ require('header.php');
 		</div>
 	<?}else{?>
 		<div class="alert alert-info">
-			<strong>Oh no!</strong> There's no members currently in this clan that have been in any wars.
+			<strong>Oh no!</strong> There's no members currently in this clan that have been in enough wars. Players must be in at least 2 completed wars appear on this page.
 		</div>
 	<?}?>
 </div>
