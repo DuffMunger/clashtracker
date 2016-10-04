@@ -985,7 +985,8 @@ class Player{
 		if(isset($this->score)){
 			return $this->score;
 		}
-		if($this->numberOfWars == 0){
+		$n = $this->numberOfWars;
+		if($n == 0){
 			$this->score = 0;
 			return $this->score;
 		}
@@ -1014,16 +1015,16 @@ class Player{
 			$rdw = 1;
 		}
 
-		$fat = ($this->firstAttackTotalStars / $this->numberOfWars) * $faw * $tsw;
-		$fan = ($this->firstAttackNewStars / $this->numberOfWars) * $faw * $nsw;
-		$sat = ($this->secondAttackTotalStars / $this->numberOfWars) * $saw * $tsw;
-		$san = ($this->secondAttackNewStars / $this->numberOfWars) * $saw * $nsw;
-		$sa = ($this->starsOnDefence / $this->numberOfWars) * $dw;
-		$aa = ($this->numberOfDefences / $this->numberOfWars) * $nodw;
+		$fat = ($this->firstAttackTotalStars / $n) * $faw * $tsw;
+		$fan = ($this->firstAttackNewStars / $n) * $faw * $nsw;
+		$sat = ($this->secondAttackTotalStars / $n) * $saw * $tsw;
+		$san = ($this->secondAttackNewStars / $n) * $saw * $nsw;
+		$sa = ($this->starsOnDefence / $n) * $dw;
+		$aa = ($this->numberOfDefences / $n) * $nodw;
 		$aa = ($aa == 0) ? 1 : $aa;
 		$ra = $this->attacksUsed == 0 ? 0 : ($this->rankAttacked / $this->attacksUsed) * $raw;
 		$rd = $this->numberOfDefences == 0 ? 0 : ($this->rankDefended / $this->numberOfDefences) * $rdw;
-		$au = $this->attacksUsed / $this->numberOfWars;
+		$au = $this->attacksUsed / $n;
 		$wslp = $this->warsSinceLastParticipated();
 		$wslp = ($wslp == INF) ? 0 : $wslp;
 
@@ -1036,7 +1037,7 @@ class Player{
 		$this->score -= $defencePenalty; // applying penalty to score
 
 		$this->score -= ((2 - $au) * 2) * $auw; // penalty for players who don't use attacks
-		$this->score *= min(1, ($this->numberOfWars+6)/10); // reduction in score for new players (this is here to reduce new players from getting a perfect war right away and jumping to the top of the clan's war stats)
+		$this->score *= min(1, (85+($n-2)*3)/100); // reduction in score for new players (this is here to reduce new players from getting a perfect war right away and jumping to the top of the clan's war stats)
 		$this->score *= max((100-$wslp)/100, 0.5); // small penalty for players not participating in wars (this is here to reduce players getting a high score and then 'retiring' at the top of the clan's war stats; they have to keep fighting to stay at the top)
 		return $this->score;
 	}
