@@ -183,21 +183,17 @@ function userHasAccessToUpdatePlayer($player, $anyone=true){
 	$accessType = $player->get('accessType');
 	if($accessType=='AN' && $anyone){
 		return true;
-	}else{
-		if(isset($loggedInUser)){
-			if(isset($loggedInUserPlayer) && $loggedInUserPlayer->get('id') == $player->get('id')){
-				return true;
-			}else{
-				$allowedUsers = $player->getAllowedUsers();
-				foreach ($allowedUsers as $user) {
-					if($loggedInUser->get('id') == $user->get('id')){
-						return true;
-					}
-				}
-				return false;
-			}
-		}else{
-			return false;
+	}
+	if(!isset($loggedInUser)){
+		return false;
+	}
+	if(isset($loggedInUserPlayer) && $loggedInUserPlayer->get('id') == $player->get('id')){
+		return true;
+	}
+	$allowedUsers = $player->getAllowedUsers();
+	foreach ($allowedUsers as $user) {
+		if($loggedInUser->get('id') == $user->get('id')){
+			return true;
 		}
 	}
 	return false;
@@ -209,41 +205,37 @@ function userHasAccessToUpdateClan($clan, $anyone=true){
 	$accessType = $clan->get('accessType');
 	if($accessType=='AN' && $anyone){
 		return true;
-	}else{
-		if(isset($loggedInUser)){
-			if(isset($loggedInUserClan) && $loggedInUserClan->get('id') == $clan->get('id')){
-				return true;
-			}else{
-				$allowedUsers = $clan->getAllowedUsers();
-				foreach ($allowedUsers as $user) {
-					if($loggedInUser->get('id') == $user->get('id')){
-						return true;
-					}
-				}
-				return false;
-			}
-		}else{
-			return false;
+	}
+	if(!isset($loggedInUser)){
+		return false;
+	}
+	if(isset($loggedInUserClan) && $loggedInUserClan->get('id') == $clan->get('id')){
+		return true;
+	}
+	$allowedUsers = $clan->getAllowedUsers();
+	foreach ($allowedUsers as $user) {
+		if($loggedInUser->get('id') == $user->get('id')){
+			return true;
 		}
 	}
 	return false;
 }
 
 function userHasAccessToUpdateWar($war){
-	if(!userHasAccessToUpdateClan($war->get('clan1'))){
-		global $loggedInUser;
-		if(isset($loggedInUser)){
-			$allowedUsers = $war->getAllowedUsers();
-			foreach ($allowedUsers as $user) {
-				if($loggedInUser->get('id') == $user->get('id')){
-					return true;
-				}
-			}
-		}
-		return false;
-	}else{
+	if(userHasAccessToUpdateClan($war->get('clan1'))){
 		return true;
 	}
+	global $loggedInUser;
+	if(!isset($loggedInUser)){
+		return false;
+	}
+	$allowedUsers = $war->getAllowedUsers();
+	foreach ($allowedUsers as $user) {
+		if($loggedInUser->get('id') == $user->get('id')){
+			return true;
+		}
+	}
+	return false;
 }
 
 function convertType($code){
@@ -305,9 +297,8 @@ function convertBackRank($code){
 function convertLocation($location){
 	if(isset($location)){
 		return $location;
-	}else{
-		return 'Not Set';
 	}
+	return 'Not Set';
 }
 
 function refreshClanInfo($clan, $force=false){
@@ -379,64 +370,8 @@ function refreshClanInfo($clan, $force=false){
 function warsMatch($apiWar, $war){
 	if(($apiWar->clan->tag == $war->get('clan1')->get('tag') && $apiWar->opponent->tag == $war->get('clan2')->get('tag')) || ($apiWar->clan->tag == $war->get('clan2')->get('tag') && $apiWar->opponent->tag == $war->get('clan1')->get('tag'))){
 		return $apiWar->teamSize == $war->get('size');
-	}else{
-		return false;
 	}
-}
-
-function cpr($var, $limit=2, $tab=""){
-	$val = '';
-	if(is_array($var)){
-		if($limit<0){
-			return "DEPTH LIMIT REACHED";
-		}
-		$val .= "Array\n" . $tab . "(\n";
-		foreach ($var as $key => $value) {
-			$val .= $tab . "\t[" . $key . '] => ' . cpr($value, $limit-1, $tab."\t\t") . "\n";
-		}
-		$val .= $tab . ")";
-	}elseif(is_object($var)){
-		if($limit<0){
-			return "DEPTH LIMIT REACHED";
-		}
-		$class = get_class($var);
-		global $classes;
-		if(in_array($class, $classes)){
-			$reflect = new ReflectionClass($var);
-			$props = $reflect->getProperties();
-			$varArray = array();
-			foreach ($props as $prop) {
-				$key = $prop->name;
-				$value = null;
-				try{
-					$value = $var->get($key);
-				}catch(Exception $e){
-					//ignore
-				}
-				if(isset($value)){
-					$varArray[$key] = $value;
-				}
-			}
-		}else{
-			$varArray = get_object_vars($var);
-		}
-		$val .= $class . " Object\n" . $tab . "(\n";
-		foreach ($varArray as $key => $value) {
-			$val .= $tab . "\t[" . $key . '] => ' . cpr($value, $limit-1, $tab."\t\t") . "\n";
-		}
-		$val .= $tab . ")";
-	}else{
-		if(is_null($var)){
-			$val .= "NULL";
-		}elseif($var === true){
-			$val .= "TRUE";
-		}elseif($var === false){
-			$val .= "FALSE";
-		}else{
-			$val .= $var;
-		}
-	}
-	return $val;
+	return false;
 }
 
 function email($to, $subject, $message, $from){
@@ -459,17 +394,15 @@ function email($to, $subject, $message, $from){
 			error_log($e->getMessage());
 			return false;
 		}
-	}else{
-		return false;
 	}
+	return false;
 }
 
 function correctDateFormat($date){
 	if(is_numeric($date)){
 		return date('Y-m-d H:i:s', $date);
-	}else{
-		return date('Y-m-d H:i:s', strtotime($date));
 	}
+	return date('Y-m-d H:i:s', strtotime($date));
 }
 
 function displayName($name){
