@@ -122,6 +122,8 @@ require('header.php');
 					</table>
 				</div>
 				<div class="col-md-6">
+					<h4>Message:</h4><br>
+					<textarea type="textarea" rows="4" class="form-control" id="message" name="message" placeholder="Input a message for this assignment."></textarea>
 					<div class="row">
 						<div class="col-sm-12 text-right btn-actions">
 							<br>

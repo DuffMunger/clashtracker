@@ -85,7 +85,7 @@ if($attackerClan->get('id') == $defenderClan->get('id')){
 
 $attackerAssignments = $war->getAssignments($attacker->get('id'));
 if(count($attackerAssignments) >= 2){
-	$_SESSION['curError'] = htmlspecialchars($attacker->get('name')) . ' has already been assigned 2 attakcs.';
+	$_SESSION['curError'] = htmlspecialchars($attacker->get('name')) . ' has already been assigned 2 attacks.';
 	header('Location: /war.php?warId=' . $war->get('id') . $clanIdText);
 	exit;
 }
@@ -96,8 +96,9 @@ if(isset($attackerAssignments[0]) && $attackerAssignments[0]->get('assignedPlaye
 	exit;
 }
 
+$message = $_POST['message'];
 try{
-	$war->addAssignment($attacker, $defender);
+	$war->addAssignment($attacker, $defender, $message);
 	$_SESSION['curMessage'] = 'New assignment added successfully.';
 }catch(Exception $e){
 	$_SESSION['curError'] = $e->getMessage();
