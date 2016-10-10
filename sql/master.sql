@@ -1164,18 +1164,6 @@ delimiter ;
 
 alter table user add column admin boolean;
 
-drop procedure if exists p_user_create;
-delimiter //
-create procedure p_user_create(varEmail varchar(254), varPassword varchar(255), varDate datetime)
-begin
-    if exists (select * from user limit 1)
-    then insert into user(email, password, date_created, admin) values(varEmail, varPassword, varDate, false);
-    else insert into user(email, password, date_created, admin) values(varEmail, varPassword, varDate, true);
-    end if;
-    select last_insert_id() as id;
-end //
-delimiter ;
-
 drop procedure if exists p_proxy_env_add;
 delimiter //
 create procedure p_proxy_env_add(varEnv varchar(200), varLimit int, varIp varchar(39), varMonth varchar(10))
@@ -1215,3 +1203,15 @@ delimiter ;
 
 alter table war add first_clan_message varchar(1000);
 alter table war add second_clan_message varchar(1000);
+
+drop procedure if exists p_user_create;
+delimiter //
+create procedure p_user_create(varEmail varchar(254), varPassword varchar(255), varDate datetime)
+begin
+    if exists (select * from user limit 1)
+    then insert into user(email, password, date_created, admin, last_login) values(varEmail, varPassword, varDate, false, varDate);
+    else insert into user(email, password, date_created, admin, last_login) values(varEmail, varPassword, varDate, true, varDate);
+    end if;
+    select last_insert_id() as id;
+end //
+delimiter ;
