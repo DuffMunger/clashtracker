@@ -32,7 +32,7 @@ $wars = $clan->getWars();
 $war = $wars[0];
 $lootReport = $clan->getLootReports()[0];
 $userHasAccessToUpdateClan = userHasAccessToUpdateClan($clan);
-$canGenerateLootReport = $userHasAccessToUpdateClan && $clan->canGenerateLootReport(weekAgo());
+$canGenerateLootReport = $userHasAccessToUpdateClan && $clan->canGenerateLootReport();
 if(isset($loggedInUserClan) && $loggedInUserClan->get('id') == $clanId){
 	$requests = $clan->getRequests();
 }else{
@@ -112,10 +112,7 @@ require('header.php');
 	<?if((count($members)>0 && $userHasAccessToUpdateClan) || count($wars)>0 || $canForceUpdate){?>
 		<div class="col-md-12">
 			<div class="col-md-12">
-				<?if(count($members)>0 && $userHasAccessToUpdateClan){?>
-					<a type="button" class="btn btn-success" href="/recordClanLoot.php?clanId=<?=$clanId;?>">Record Loot</a>
-				<?}
-				if($canGenerateLootReport){?>
+				<?if($canGenerateLootReport){?>
 					<a type="button" class="btn btn-success" href="/processGenerateLootReport.php?clanId=<?=$clanId;?>">Generate Loot Report</a>
 				<?}
 				if(isset($lootReport)){?>

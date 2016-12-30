@@ -10,11 +10,11 @@ class LootReport{
 		'date_created' => 'dateCreated'
 	);
 
-	public function create($clan, $sinceTime=null){
+	public function create($clan){
 		global $db;
 		if(!isset($this->id)){
 			$clanId = $clan->get('id');
-			if($clan->canGenerateLootReport($sinceTime)){
+			if($clan->canGenerateLootReport()){
 				$date = date('Y-m-d H:i:s', time());
 				$procedure = buildProcedure('p_loot_report_create', $clanId, $date);
 				if(($db->multi_query($procedure)) === TRUE){
@@ -26,7 +26,8 @@ class LootReport{
 					$this->clanId = $result->clan_id;
 					$this->dateCreated = $result->date_created;
 					try{
-						$this->generate($sinceTime);
+						$this->updatePlayerLootStats();
+						$this->generate();
 					}catch(Exception $e){
 						$this->delete();
 						throw $e;
@@ -42,33 +43,27 @@ class LootReport{
 		}
 	}
 
-	public function createWithoutGeneration($clan, $date){
-		global $db;
-		if(!isset($this->id)){
-			$clanId = $clan->get('id');
-			$procedure = buildProcedure('p_loot_report_create', $clanId, $date);
-			if(($db->multi_query($procedure)) === TRUE){
-				$result = $db->store_result()->fetch_object();
-				while ($db->more_results()){
-					$db->next_result();
-				}
-				$this->id = $result->id;
-				$this->clanId = $result->clan_id;
-				$this->dateCreated = $result->date_created;
-			}else{
-				throw new SQLQueryException('The database encountered an error. ' . $db->error);
-			}
-		}else{
-			throw new FunctionCallException('ID set, cannot create.');
+	public function clan(){
+		if(isset($this->clan)){
+			return $this->clan;
+		}
+		$this->clan = new clan($this->clanId);
+		return $this->clan;
+	}
+
+	private function updatePlayerLootStats(){
+		$players = $this->clan()->getMembers();
+		foreach ($players as $player) {
+			refreshPlayerInfo($player);
 		}
 	}
 
-	private function generate($sinceTime=null){
+	private function generate(){
 		if(isset($this->id)){
-			$this->clan = new clan($this->clanId);
+			$sinceTime = date('Y-m-d H:i:s', strtotime('-8 days'));
 			$types = array('GO', 'EL', 'DE');
 			foreach ($types as $type) {
-				$players = $this->clan->getPlayersAvailableForLootReport($type, $sinceTime);
+				$players = $this->clan()->getPlayersAvailableForLootReport($type);
 				foreach ($players as $player) {
 					$loot = $player->getStat($type, $sinceTime);
 					$amount = $loot[0]['statAmount'] - $loot[count($loot)-1]['statAmount'];
@@ -184,10 +179,7 @@ class LootReport{
 			if(in_array($prpty, $this->acceptGet)){
 				return $this->$prpty;
 			}elseif($prpty == 'clan'){
-				if(!isset($this->clan)){
-					$this->clan = new clan($this->clanId);
-				}
-				return $this->clan;
+				return $this->clan();
 			}elseif($prpty == 'results'){
 				return $this->getResults();
 			}else{

@@ -59,7 +59,7 @@ require('header.php');
 							<td onclick="clickRow('player.php?playerId=<?=$player->get("id");?>');"><i class="fa fa-certificate" style="color: #43BBE9;"></i>&nbsp;<?=$player->get('level');?></td>
 							<td onclick="clickRow('player.php?playerId=<?=$player->get("id");?>');"><i class="fa fa-trophy" style="color: gold;"></i>&nbsp;<?=$player->get('trophies');?></td>
 							<?$clan = $player->getClan();
-							if(isset($clan)){?>
+							if(isset($clan) && $clan->get('id') != 0){?>
 								<td onclick="clickRow('clan.php?clanId=<?=$clan->get("id");?>');">
 									<?$url = $clan->get('badgeUrl');
 									if(strlen($url)>0){?>
@@ -68,7 +68,7 @@ require('header.php');
 									<?=displayName($clan->get('name'));?>
 								</td>
 							<?}else{?>
-								<td></td>
+								<td onclick="clickRow('player.php?playerId=<?=$player->get("id");?>');"></td>
 							<?}?>
 							<td onclick="clickRow('player.php?playerId=<?=$player->get("id");?>');"><?=rankFromCode($player->get('rank'));?></td>
 							<td class="text-right" onclick="clickRow('player.php?playerId=<?=$player->get("id");?>');"><?=$player->get('tag');?></td>
