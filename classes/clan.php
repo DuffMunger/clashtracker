@@ -839,7 +839,7 @@ public function getPlayersAvailableForLootReport($type){
 		if(count($lootReports)>0){
 			$lootReport = $lootReports[0];
 			$date = strtotime($lootReport->get('dateCreated'));
-			if($date > strtotime('-3 days')){
+			if($date > strtotime('-6 days')){
 				return false;
 			}
 		}
