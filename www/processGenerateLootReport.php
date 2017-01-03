@@ -19,7 +19,7 @@ if(!userHasAccessToUpdateClan($clan)){
 }
 
 try{
-	$lootReport = $clan->generateLootReport(weekAgo());
+	$lootReport = $clan->generateLootReport();
 	$_SESSION['curMessage'] = 'Loot Report Successfully Generated.';
 	header('Location: /lootReport.php?lootReportId=' . $lootReport->get('id'));
 }catch(Exception $e){

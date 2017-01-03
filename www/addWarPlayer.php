@@ -91,16 +91,16 @@ for ($i=1; $i < count($members); $i++) {
 
 for ($i=1; $i < count($members); $i++) {
 	$j=$i;
-	$member1Val = $members[$j]->warsSinceLastParticipated();
-	$member2Val = $members[$j-1]->warsSinceLastParticipated();
+	$member1Val = $members[$j]->warsSinceLastParticipated()/4;
+	$member2Val = $members[$j-1]->warsSinceLastParticipated()/4;
 	while($j>0 && $member1Val < $member2Val){
 		$temp = $members[$j];
 		$members[$j] = $members[$j-1];
 		$members[$j-1] = $temp;
 		$j--;
 		if($j>0){
-			$member1Val = $members[$j]->warsSinceLastParticipated();
-			$member2Val = $members[$j-1]->warsSinceLastParticipated();
+			$member1Val = $members[$j]->warsSinceLastParticipated()/4;
+			$member2Val = $members[$j-1]->warsSinceLastParticipated()/4;
 		}
 	}
 }

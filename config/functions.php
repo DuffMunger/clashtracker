@@ -59,11 +59,20 @@ function buildProcedure(){
 			}
 		}
 		$procedure = rtrim($procedure, ",") . ');';
-		error_log($procedure);
+		printCaller($procedure);
 		return $procedure;
 	}else{
 		throw new OperationException('buildProcedure first argument must be the procedure name.');
 	}
+}
+
+function printCaller($message=''){
+	$trace = debug_backtrace();
+	array_shift($trace);
+	$caller = array_shift($trace);
+	$file = $caller['file'];
+	$line = $caller['line'];
+	error_log($file . ':' . $line . ': ' . $message);
 }
 
 function correctTag($tag){
@@ -76,7 +85,7 @@ function correctTag($tag){
 }
 
 function weekAgo(){
-	return strtotime('-180 hours');
+	return strtotime('-1 week');
 }
 
 function dayAgo(){
@@ -107,7 +116,7 @@ function sortPlayersByWarScore($players){
 		}
 	}
 	foreach ($players as $key => $player) {
-		if($player->get('numberOfWars') == 0){
+		if($player->get('numberOfWars') < 2){
 			unset($players[$key]);
 		}
 	}
@@ -310,13 +319,34 @@ function convertLocation($location){
 	}
 }
 
+function refreshPlayerInfo($player, $force=false){
+	global $loggedInUser;
+	try{
+		if(hourAgo() > strtotime($player->get('apiUpdated')) || $force){
+			$api = new PlayerAPI();
+			$playerInfo = $api->getPlayerInformation($player->get('tag'));
+		}else{
+			return true;
+		}
+	}catch(APIException $e){
+		error_log($e->getReasonMessage());
+	}catch(Exception $e){
+		error_log($e->getMessage());
+	}
+	if(!isset($playerInfo)){
+		return false;
+	}
+	$player->updateFromApi($playerInfo);
+	return true;
+}
+
 function refreshClanInfo($clan, $force=false){
 	global $loggedInUser;
 	if(!$force && isset($loggedInUser) && $loggedInUser->isAdmin()){
 		return true; //Temporary to help reduce API calls (#37)
 	}
 	try{
-		if(hourAgo() > strtotime($clan->get('dateModified')) || $force || DEVELOPEMENT){
+		if(hourAgo() > strtotime($clan->get('apiUpdated')) || $force){
 			$api = new ClanAPI();
 			$clanInfo = $api->getClanInformation($clan->get('tag'));
 			if($clanInfo->isWarLogPublic){
@@ -346,6 +376,7 @@ function refreshClanInfo($clan, $force=false){
 			if(!isset($player)){
 				$player = new Player();
 				$player->create($apiMember->name, $apiMember->tag);
+				refreshPlayerInfo($player, true);
 				$playerClan = null;
 			}else{
 				$playerClan = $player->get('clan');
@@ -354,7 +385,7 @@ function refreshClanInfo($clan, $force=false){
 				$clan->addPlayer($player);
 			}
 			unset($members[$player->get('id')]);
-			$player->updateFromApi($apiMember);
+			$player->updateFromClanApi($apiMember);
 		}
 		foreach ($members as $member){
 			$member->leaveClan();

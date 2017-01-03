@@ -24,6 +24,7 @@ class API{
 		curl_setopt($curl, CURLOPT_URL, $url);
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $this->headers);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		error_log('API Call: ' . $url);
 		$rawResult = curl_exec($curl);
 		$result = json_decode($rawResult);
 		curl_close($curl);

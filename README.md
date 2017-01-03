@@ -40,3 +40,18 @@ Add-on | Config Var Name | Monthly Limit of Base Plan
 
 ## Contributing
 Clash Tracker is mainly developed by <a href="https://github.com/alexinman">myself</a>, however, feel free to fork and fix or add to Clash Tracker in any way you'd like and please submit a pull request to develop for any changes you make so that everyone can benefit from your hard work :)
+
+## Miscellaneous
+A player's war score is calculated based on performance in wars. There are some penalties to scores for various reasons that might not be intuitive. For example, one penalty is the new player penalty; a player gets docked slightly for only being in a few wars. This is to give a more realistic first impression for players that just joined and had just a couple good wars to start off with. This penalty can be calculated from the table below:
+
+Number of Completed Wars | % of Total Score
+------------------------ | ----------------
+1* | 82%
+2 | 85%
+3 | 88%
+4 | 91%
+5 | 94%
+6 | 97%
+7 | 100%
+
+*This is technically what is used when scoring players that have only been in 1 completed war, however, they will not be shown on the war stats page due to not having enough useful information to show.

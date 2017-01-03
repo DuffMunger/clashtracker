@@ -9,6 +9,7 @@ class Clan{
 	private $warFrequency;
 	private $dateCreated;
 	private $dateModified;
+	private $apiUpdated;
 	private $members;
 	private $clanLevel;
 	private $clanPoints;
@@ -37,6 +38,7 @@ class Clan{
 		'war_frequency' => 'warFrequency',
 		'date_created' => 'dateCreated',
 		'date_modified' => 'dateModified',
+		'api_updated' => 'apiUpdated',
 		'access_type' => 'accessType',
 		'min_rank_access' => 'minRankAccess',
 		'members' => 'members',
@@ -138,6 +140,7 @@ class Clan{
 					$this->warFrequency = $record->war_frequency;
 					$this->dateCreated = $record->date_created;
 					$this->dateModified = $record->date_modified;
+					$this->apiUpdated = $record->api_updated;
 					$this->members = $record->members;
 					$this->clanPoints = $record->clan_points;
 					$this->clanLevel = $record->clan_level;
@@ -191,6 +194,7 @@ class Clan{
 					$this->warFrequency = $record->war_frequency;
 					$this->dateCreated = $record->date_created;
 					$this->dateModified = $record->date_modified;
+					$this->apiUpdated = $record->api_updated;
 					$this->members = $record->members;
 					$this->clanPoints = $record->clan_points;
 					$this->clanLevel = $record->clan_level;
@@ -229,6 +233,7 @@ class Clan{
 		$this->warFrequency = $clanObj->war_frequency;
 		$this->dateCreated = $clanObj->date_created;
 		$this->dateModified = $clanObj->date_modified;
+		$this->apiUpdated = $record->api_updated;
 		$this->members = $clanObj->members;
 		$this->clanPoints = $clanObj->clan_points;
 		$this->clanLevel = $clanObj->clan_level;
@@ -789,12 +794,12 @@ class Clan{
 		}
 	}
 
-	public function getPlayersAvailableForLootReport($type, $sinceTime=null){
+public function getPlayersAvailableForLootReport($type){
 		global $db;
 		if(isset($this->id)){
-			if(!isset($sinceTime)){$sinceTime=weekAgo();}
-			$date = date('Y-m-d H:i:s', $sinceTime);
-			$procedure = buildProcedure('p_clan_players_for_loot_report', $this->id, $type, $date);
+			$startDate = date('Y-m-d H:i:s', strtotime('-8 days'));
+			$endDate = date('Y-m-d H:i:s', strtotime('-5 days'));
+			$procedure = buildProcedure('p_clan_players_for_loot_report', $this->id, $type, $startDate, $endDate);
 			if(($db->multi_query($procedure)) === TRUE){
 				$results = $db->store_result();
 				while ($db->more_results()){
@@ -817,37 +822,37 @@ class Clan{
 		}
 	}
 
-	public function getPlayersAvailableForGoldReport($sinceTime=null){
-		return $this->getPlayersAvailableForLootReport('GO', $sinceTime);
+	public function getPlayersAvailableForGoldReport(){
+		return $this->getPlayersAvailableForLootReport('GO');
 	}
 
-	public function getPlayersAvailableForElixirReport($sinceTime=null){
-		return $this->getPlayersAvailableForLootReport('EL', $sinceTime);
+	public function getPlayersAvailableForElixirReport(){
+		return $this->getPlayersAvailableForLootReport('EL');
 	}
 
-	public function getPlayersAvailableForDarkElixirReport($sinceTime=null){
-		return $this->getPlayersAvailableForLootReport('DE', $sinceTime);
+	public function getPlayersAvailableForDarkElixirReport(){
+		return $this->getPlayersAvailableForLootReport('DE');
 	}
 
-	public function canGenerateLootReport($sinceTime=null){
+	public function canGenerateLootReport(){
 		$lootReports = $this->getLootReports();
 		if(count($lootReports)>0){
 			$lootReport = $lootReports[0];
 			$date = strtotime($lootReport->get('dateCreated'));
-			if($date > dayAgo()){
+			if($date > strtotime('-6 days')){
 				return false;
 			}
 		}
-		$playersAvailableForLootReport = $this->getPlayersAvailableForGoldReport($sinceTime);
-		$playersAvailableForLootReport = array_merge($playersAvailableForLootReport, $this->getPlayersAvailableForElixirReport($sinceTime));
-		$playersAvailableForLootReport = array_merge($playersAvailableForLootReport, $this->getPlayersAvailableForDarkElixirReport($sinceTime));
+		$playersAvailableForLootReport = $this->getPlayersAvailableForGoldReport();
+		$playersAvailableForLootReport = array_merge($playersAvailableForLootReport, $this->getPlayersAvailableForElixirReport());
+		$playersAvailableForLootReport = array_merge($playersAvailableForLootReport, $this->getPlayersAvailableForDarkElixirReport());
 		return count($playersAvailableForLootReport)>0;
 	}
 
-	public function generateLootReport($sinceTime=null){
+	public function generateLootReport(){
 		if(isset($this->id)){
 			$lootReport = new LootReport();
-			$lootReport->create($this, $sinceTime);
+			$lootReport->create($this);
 			return $lootReport;
 		}else{
 			throw new FunctionCallException('ID not set for generating loot report.');

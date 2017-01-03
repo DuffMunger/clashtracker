@@ -5,6 +5,7 @@ class Player{
 	private $tag;
 	private $dateCreated;
 	private $dateModified;
+	private $apiUpdated;
 	private $warsSinceLastParticipated;
 	private $accessType;
 	private $minRankAccess;
@@ -33,6 +34,7 @@ class Player{
 		'tag' => 'tag',
 		'date_created' => 'dateCreated',
 		'date_modified' => 'dateModified',
+		'api_updated' => 'apiUpdated',
 		'access_type' => 'accessType',
 		'min_rank_access' => 'minRankAccess',
 		'trophies' => 'trophies',
@@ -168,6 +170,7 @@ class Player{
 		$this->tag = $playerObj->tag;
 		$this->dateCreated = $playerObj->date_created;
 		$this->dateModified = $playerObj->date_modified;
+		$this->apiUpdated = $playerObj->api_updated;
 		$this->accessType = $playerObj->access_type;
 		$this->minRankAccess = $playerObj->min_rank_access;
 		$this->level = $playerObj->level;
@@ -234,7 +237,37 @@ class Player{
 		}
 	}
 
-	public function updateFromApi($apiMember){
+	public function updateFromApi($playerApiInfo){
+		$name = $playerApiInfo->name;
+		if($name!=$this->name){$this->set('name', $name);}
+		$leagueUrl = $playerApiInfo->league->iconUrls->small;
+		if(isset($leagueUrl)){$this->set('leagueUrl', $leagueUrl);}
+		$achievements = $playerApiInfo->achievements;
+		foreach ($achievements as $achievement) {
+			$achievements[$achievement->name] = $achievement;
+		}
+		$gold = $achievements['Gold Grab']->value;
+		$elixir = $achievements['Elixir Escapade']->value;
+		$darkElixir = $achievements['Heroic Heist']->value;
+		$this->recordLoot($gold, $elixir, $darkElixir);
+		$apiClan = $playerApiInfo->clan;
+		$clanTag = $apiClan->tag;
+		if(isset($clanTag)){
+			try{
+				$clan = new Clan($clanTag);
+			}catch(NoResultFoundException $e){
+				$clan = new Clan();
+				$clan->create($clanTag, $apiClan->name);
+				$clan->set('badgeUrl', $apiClan->badgeUrls->small);
+			}
+			$rank = convertRank($playerApiInfo->role);
+			$clan->addPlayer($this, $rank);
+		}else{
+			$this->leaveClan();
+		}
+	}
+
+	public function updateFromClanApi($apiMember){
 		global $db;
 		if(isset($this->id)){
 			if($this->getClanRank() == convertRank($apiMember->role)
@@ -277,103 +310,84 @@ class Player{
 		}
 	}
 
-	public function deleteLootRecord($type){
+	private function recordLoot($gold, $elixir, $darkElixir){
 		global $db;
-		if(isset($this->id)){
-			$procedure = buildProcedure('p_player_delete_record', $this->id, $type);
-			if(($db->multi_query($procedure)) === TRUE){
-				while ($db->more_results()){
-					$db->next_result();
-				}
-			}else{
-				throw new SQLQueryException('The database encountered an error. ' . $db->error);
-			}
-		}else{
-			throw new FunctionCallException('ID not set for delete records.');
-		}
-	}
-
-	private function recordLoot($type, $amount, $date='%'){
-		global $db;
-		if(isset($this->id)){
-			$date = ($date == '%') ? date('Y-m-d H:i:s', time()) : $date;
-			$loot = $this->getStat($type);
-			if((count($loot) == 0 || $loot[0]['statAmount'] <= $amount) && $amount >= 0){
-				$procedure = buildProcedure('p_player_record_loot', $this->id, $type, $amount, $date);
-				if(($db->multi_query($procedure)) === TRUE){
-					while ($db->more_results()){
-						$db->next_result();
-					}
-				}else{
-					throw new SQLQueryException('The database encountered an error. ' . $db->error);
-				}
-			}else{
-				throw new LootAmountException('New loot recording must be positive and more than previous recording. Player ID: ' . $this->id . ".", $loot[0]['statAmount']);
-			}
-		}else{
+		if(!isset($this->id)){
 			throw new FunctionCallException('ID not set for recording loot.');
 		}
+		if(!isset($this->stats)){
+			$this->getStat('GO');
+		}
+		$date = date('Y-m-d H:i:s', time());
+		$procedure = buildProcedure('p_player_record_loot', $this->id, $gold, $elixir, $darkElixir, $date);
+		if(($db->multi_query($procedure)) !== TRUE){
+			throw new SQLQueryException('The database encountered an error. ' . $db->error);
+		}
+		while ($db->more_results()){
+			$db->next_result();
+		}
+		array_unshift($this->stats['GO'], $this->lootArr($date, 'GO', $gold));
+		array_unshift($this->stats['EL'], $this->lootArr($date, 'EL', $elixir));
+		array_unshift($this->stats['DE'], $this->lootArr($date, 'DE', $darkElixir));
 	}
 
-	public function recordGold($amount, $date='%'){
-		$this->recordLoot('GO', $amount, $date);
-	}
-
-	public function recordElixir($amount, $date='%'){
-		$this->recordLoot('EL', $amount, $date);
-	}
-
-	public function recordDarkElixir($amount, $date='%'){
-		$this->recordLoot('DE', $amount, $date);
+	private function lootArr($date, $type, $amount){
+		$temp = array();
+		$temp['playerId'] = $this->id;
+		$temp['dateRecorded'] = $date;
+		$temp['statType'] = $type;
+		$temp['statAmount'] = $amount;
+		return $temp;
 	}
 
 	public function getStat($type, $sinceTime=null){
 		global $db;
 		$sinceTime = isset($sinceTime) ? $sinceTime : 0;
 		if(isset($this->id)){
-			if(!isset($this->loot[$type])){
+			if(!isset($this->stats[$type])){
 				$procedure = buildProcedure('p_player_get_stats', $this->id);
 				if(($db->multi_query($procedure)) === TRUE){
 					$results = $db->store_result();
 					while ($db->more_results()){
 						$db->next_result();
 					}
-					$loot = array();
-					$loot[$type] = array();
+					$stats = array();
+					$stats['GO'] = array();
+					$stats['EL'] = array();
+					$stats['DE'] = array();
 					if ($results->num_rows) {
-						while ($lootObj = $results->fetch_object()) {
+						while ($statsObj = $results->fetch_object()) {
 							$tempLoot = array();
-							$tempLoot['playerId'] = $lootObj->player_id;
-							$tempLoot['dateRecorded'] = $lootObj->date_recorded;
-							$tempLoot['statType'] = $lootObj->stat_type;
-							$tempLoot['statAmount'] = $lootObj->stat_amount;
-							$tempLoot['deletable'] = $lootObj->deletable == 1;
+							$tempLoot['playerId'] = $statsObj->player_id;
+							$tempLoot['dateRecorded'] = $statsObj->date_recorded;
+							$tempLoot['statType'] = $statsObj->stat_type;
+							$tempLoot['statAmount'] = $statsObj->stat_amount;
 							$statType = $tempLoot['statType'];
-							if(!isset($loot[$statType])){
-								$loot[$statType] = array();
+							if(!isset($stats[$statType])){
+								$stats[$statType] = array();
 							}
-							$loot[$statType][] = $tempLoot;
+							$stats[$statType][] = $tempLoot;
 						}
 					}
-					$this->loot = $loot;
+					$this->stats = $stats;
 				}else{
 					throw new SQLQueryException('The database encountered an error. ' . $db->error);
 				}
 			}
 			if($sinceTime == 0){
-				return $this->loot[$type];
+				return $this->stats[$type];
 			}
-			$loot = $this->loot[$type];
+			$stats = $this->stats[$type];
 			$length = 0;
-			foreach ($loot as $tempLoot) {
-				if(strtotime($tempLoot['dateRecorded']) < $sinceTime){
+			foreach ($stats as $tempLoot) {
+				if(date('Y-m-d H:i:s', strtotime($tempLoot['dateRecorded'])) < $sinceTime){
 					break;
 				}
 				$length++;
 			}
-			return array_splice($loot, 0, $length);
+			return array_splice($stats, 0, $length);
 		}else{
-			throw new FunctionCallException('ID not set for recording loot.');
+			throw new FunctionCallException('ID not set for recording stats.');
 		}
 	}
 
@@ -985,7 +999,8 @@ class Player{
 		if(isset($this->score)){
 			return $this->score;
 		}
-		if($this->numberOfWars == 0){
+		$n = $this->numberOfWars;
+		if($n == 0){
 			$this->score = 0;
 			return $this->score;
 		}
@@ -1014,16 +1029,16 @@ class Player{
 			$rdw = 1;
 		}
 
-		$fat = ($this->firstAttackTotalStars / $this->numberOfWars) * $faw * $tsw;
-		$fan = ($this->firstAttackNewStars / $this->numberOfWars) * $faw * $nsw;
-		$sat = ($this->secondAttackTotalStars / $this->numberOfWars) * $saw * $tsw;
-		$san = ($this->secondAttackNewStars / $this->numberOfWars) * $saw * $nsw;
-		$sa = ($this->starsOnDefence / $this->numberOfWars) * $dw;
-		$aa = ($this->numberOfDefences / $this->numberOfWars) * $nodw;
+		$fat = ($this->firstAttackTotalStars / $n) * $faw * $tsw;
+		$fan = ($this->firstAttackNewStars / $n) * $faw * $nsw;
+		$sat = ($this->secondAttackTotalStars / $n) * $saw * $tsw;
+		$san = ($this->secondAttackNewStars / $n) * $saw * $nsw;
+		$sa = ($this->starsOnDefence / $n) * $dw;
+		$aa = ($this->numberOfDefences / $n) * $nodw;
 		$aa = ($aa == 0) ? 1 : $aa;
 		$ra = $this->attacksUsed == 0 ? 0 : ($this->rankAttacked / $this->attacksUsed) * $raw;
 		$rd = $this->numberOfDefences == 0 ? 0 : ($this->rankDefended / $this->numberOfDefences) * $rdw;
-		$au = $this->attacksUsed / $this->numberOfWars;
+		$au = $this->attacksUsed / $n;
 		$wslp = $this->warsSinceLastParticipated();
 		$wslp = ($wslp == INF) ? 0 : $wslp;
 
@@ -1036,7 +1051,7 @@ class Player{
 		$this->score -= $defencePenalty; // applying penalty to score
 
 		$this->score -= ((2 - $au) * 2) * $auw; // penalty for players who don't use attacks
-		$this->score *= min(1, ($this->numberOfWars+6)/10); // reduction in score for new players (this is here to reduce new players from getting a perfect war right away and jumping to the top of the clan's war stats)
+		$this->score *= min(1, (85+($n-2)*3)/100); // reduction in score for new players (this is here to reduce new players from getting a perfect war right away and jumping to the top of the clan's war stats)
 		$this->score *= max((100-$wslp)/100, 0.5); // small penalty for players not participating in wars (this is here to reduce players getting a high score and then 'retiring' at the top of the clan's war stats; they have to keep fighting to stay at the top)
 		return $this->score;
 	}
