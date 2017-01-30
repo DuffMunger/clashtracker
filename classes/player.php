@@ -380,7 +380,7 @@ class Player{
 			$stats = $this->stats[$type];
 			$length = 0;
 			foreach ($stats as $tempLoot) {
-				if(strtotime($tempLoot['dateRecorded']) < $sinceTime){
+				if(strtotime($tempLoot['dateRecorded']) < strtotime($sinceTime)){
 					break;
 				}
 				$length++;
